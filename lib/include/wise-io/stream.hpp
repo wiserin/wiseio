@@ -52,6 +52,7 @@ class Stream {
     bool ORead(const char* path);
     bool OWrite(const char* path);
     bool OAppend(const char* path);
+    bool ReadAndWrite(const char* path);
 
     bool Open(const char* path, OpenMode mode);
 

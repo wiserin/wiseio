@@ -6,7 +6,8 @@ namespace wiseio {
 enum class OpenMode {
     kRead = 0,
     kWrite,
-    kAppend
+    kAppend,
+    kReadAndWrite
 };
 
 

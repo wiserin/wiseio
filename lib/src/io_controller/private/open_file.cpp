@@ -44,6 +44,18 @@ bool Stream::OAppend(const char* path) {
 }
 
 
+bool Stream::ReadAndWrite(const char* path) {
+    fd_ = open(path, O_RDWR | O_CREAT, 0666);
+    if (fd_ < 0) {
+        logger_.Error("Ошибка при открытии файла");
+        return false;
+    } else {
+        logger_.Debug("Файл открыт в режиме ORDWR");
+        return true;
+    }
+}
+
+
 bool Stream::Open(const char* path, OpenMode mode) {
     switch (mode) {
         case (OpenMode::kRead) : {
@@ -54,6 +66,9 @@ bool Stream::Open(const char* path, OpenMode mode) {
         }
         case (OpenMode::kAppend) : {
             return OAppend(path);
+        }
+        case (OpenMode::kReadAndWrite) : {
+            return ReadAndWrite(path);
         }
     }
 }

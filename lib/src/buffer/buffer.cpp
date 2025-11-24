@@ -2,7 +2,6 @@
 #include <memory>
 #include <utility>
 
-#include <iostream>
 #include <vector>
 
 #include "wise-io/stream.hpp"

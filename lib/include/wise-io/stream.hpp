@@ -19,7 +19,9 @@ class IOBuffer {
  public:
     IOBuffer(size_t buffer_size = 4096);
 
+    IOBuffer() = default;
     IOBuffer(IOBuffer&& buffer);
+    IOBuffer& operator=(IOBuffer&& buffer) = default;
 
     size_t ReadFromBuffer() const;
     bool AddByte(uint8_t byte);
@@ -64,6 +66,10 @@ class Stream {
     bool CustomWrite(const uint8_t* buffer, size_t offset, size_t buffer_size);
 
  public:
+    Stream() = default;
+    Stream(Stream&& stream) = default;
+    Stream& operator=(Stream&& stream) = default;
+
     Stream(
         const char* file_path,
         OpenMode mode,

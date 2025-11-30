@@ -42,12 +42,12 @@ class IOBuffer {
 
 
 class Stream {
-    int fd_;
+    int fd_ = -1;
     uint64_t buffer_size_;
     bool is_eof_ = false;
     OpenMode mode_;
 
-    size_t cursor_;
+    size_t cursor_ = 0;
 
     logging::Logger logger_;
 
@@ -66,12 +66,15 @@ class Stream {
     bool CWrite(const uint8_t* buffer, size_t buffer_size);
     bool CustomWrite(const uint8_t* buffer, size_t offset, size_t buffer_size);
 
+    Stream(OpenMode mode, uint64_t buffer_size);
+
  public:
     Stream() = default;
-    Stream(Stream&& stream) = default;
-    Stream& operator=(Stream&& stream) = default;
+    Stream(Stream&& stream);
+    Stream& operator=(Stream&& stream);
 
-    Stream(OpenMode mode, uint64_t buffer_size);
+    Stream(Stream& stream) = delete;
+    Stream& operator=(Stream& stream) = delete;
 
     ssize_t Read(std::vector<uint8_t>& buffer, size_t offset = 0);
     ssize_t Read(IOBuffer& buffer, size_t offset = 0);
@@ -86,6 +89,8 @@ class Stream {
     bool CWrite(const IOBuffer& buffer);
     bool CustomWrite(const std::vector<uint8_t>& buffer, size_t offset);
     bool CustomWrite(const IOBuffer& buffer, size_t offset);
+
+    void Close();
 
     friend Stream CreateStream(const char* name, OpenMode mode, uint64_t buffer_size);
 

@@ -1,6 +1,10 @@
+#include <algorithm>
+#include <chrono>
 #include <cstdint>
 #include <stdexcept>
+#include <type_traits>
 #include <unistd.h>
+#include <utility>
 
 #include "wise-io/stream.hpp"
 #include "wise-io/schemas.hpp"
@@ -16,8 +20,43 @@ Stream::Stream(
         , mode_(io_mode) {}
 
 
-Stream::~Stream() {
+Stream::Stream(Stream&& another)
+        : fd_(another.fd_)
+        , buffer_size_(another.buffer_size_)
+        , is_eof_(another.is_eof_)
+        , mode_(another.mode_)
+        , cursor_(another.cursor_)
+        , logger_(std::move(another.logger_)) {
+
+    another.fd_ = -1;
+}
+
+
+Stream& Stream::operator=(Stream&& another) {
+    if (fd_ != -1) {
+        Close();
+    }
+
+    fd_ = another.fd_;
+    buffer_size_ = another.buffer_size_;
+    is_eof_ = another.is_eof_;
+    mode_ = another.mode_;
+    cursor_ = another.cursor_;
+    logger_ = std::move(another.logger_);
+
+    another.fd_ = -1;
+    
+    return *this;
+}
+
+
+void Stream::Close() {
     close(fd_);
+}
+
+
+Stream::~Stream() {
+    Close();
 }
 
 

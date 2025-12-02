@@ -1,4 +1,4 @@
-#pragma once
+#pragma once  // Copyright 2025 wiserin
 #include <cstddef>
 #include <cstdint>
 #include <memory>

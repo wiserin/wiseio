@@ -1,4 +1,4 @@
-#include <cstdint>
+#include <cstdint>  // Copyright 2025 wiserin
 #include <vector>
 
 #include "wise-io/stream.hpp"

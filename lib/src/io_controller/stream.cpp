@@ -1,4 +1,4 @@
-#include <cstddef>
+#include <cstddef>  // Copyright 2025 wiserin
 #include <cstdint>
 #include <stdexcept>
 #include <unistd.h>

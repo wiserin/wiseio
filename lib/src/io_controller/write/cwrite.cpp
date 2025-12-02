@@ -1,4 +1,4 @@
-#include <vector>
+#include <vector>  // Copyright 2025 wiserin
 
 #include "wise-io/stream.hpp"
 #include "wise-io/schemas.hpp"

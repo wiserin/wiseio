@@ -1,4 +1,4 @@
-#include <cstddef>
+#include <cstddef>  // Copyright 2025 wiserin
 #include <vector>
 
 #include "wise-io/schemas.hpp"

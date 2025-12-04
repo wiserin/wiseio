@@ -7,13 +7,13 @@
 
 namespace wiseio {
 
-ssize_t Stream::Read(uint8_t* buffer, size_t offset) {
+ssize_t Stream::Read(uint8_t* buffer, size_t offset, size_t buffer_size) {
     size_t count = 0;
 
-    while (count < buffer_size_) {
-        ssize_t c_bytes = pread(fd_, buffer + count, buffer_size_ - count, offset + count);
+    while (count < buffer_size) {
+        ssize_t c_bytes = pread(fd_, buffer + count, buffer_size - count, offset + count);
 
-        if (c_bytes + count >= buffer_size_) {
+        if (c_bytes + count >= buffer_size) {
             count += c_bytes;
             break;
         } else if (c_bytes == 0) {
@@ -35,13 +35,13 @@ ssize_t Stream::Read(uint8_t* buffer, size_t offset) {
 }
 
 
-ssize_t Stream::CRead(uint8_t* buffer) {
+ssize_t Stream::CRead(uint8_t* buffer, size_t buffer_size) {
     size_t count = 0;
 
-    while (count < buffer_size_) {
-        ssize_t c_bytes = pread(fd_, buffer + count, buffer_size_ - count, cursor_ + count);
+    while (count < buffer_size) {
+        ssize_t c_bytes = pread(fd_, buffer + count, buffer_size - count, cursor_ + count);
 
-        if (c_bytes + count >= buffer_size_) {
+        if (c_bytes + count >= buffer_size) {
             count += c_bytes;
             break;
         } else if (c_bytes == 0) {

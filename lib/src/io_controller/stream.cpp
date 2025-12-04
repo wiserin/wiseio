@@ -1,5 +1,4 @@
 #include <cstddef>  // Copyright 2025 wiserin
-#include <cstdint>
 #include <stdexcept>
 #include <unistd.h>
 #include <utility>
@@ -11,16 +10,12 @@
 
 namespace wiseio {
 
-Stream::Stream(
-        OpenMode io_mode,
-        uint64_t buffer_size) 
-        : buffer_size_(buffer_size)
-        , mode_(io_mode) {}
+Stream::Stream(OpenMode io_mode)
+        : mode_(io_mode) {}
 
 
 Stream::Stream(Stream&& another)
         : fd_(another.fd_)
-        , buffer_size_(another.buffer_size_)
         , is_eof_(another.is_eof_)
         , mode_(another.mode_)
         , cursor_(another.cursor_)
@@ -36,7 +31,6 @@ Stream& Stream::operator=(Stream&& another) {
     }
 
     fd_ = another.fd_;
-    buffer_size_ = another.buffer_size_;
     is_eof_ = another.is_eof_;
     mode_ = another.mode_;
     cursor_ = another.cursor_;
@@ -67,8 +61,8 @@ Stream::~Stream() {
 }
 
 
-Stream CreateStream(const char* name, OpenMode mode, uint64_t buffer_size) {
-    Stream stream {mode, buffer_size};
+Stream CreateStream(const char* name, OpenMode mode) {
+    Stream stream {mode};
 
     stream.logger_ = logging::Logger {name};
     bool state = stream.Open(name);

@@ -43,7 +43,6 @@ class IOBuffer {
 
 class Stream {
     int fd_ = -1;
-    uint64_t buffer_size_;
     bool is_eof_ = false;
     OpenMode mode_;
 
@@ -58,15 +57,15 @@ class Stream {
 
     bool Open(const char* path);
 
-    ssize_t Read(uint8_t* buffer, size_t offset);
-    ssize_t CRead(uint8_t* buffer);
+    ssize_t Read(uint8_t* buffer, size_t offset, size_t buffer_size);
+    ssize_t CRead(uint8_t* buffer, size_t buffer_size);
     ssize_t CustomRead(uint8_t* buffer, size_t offset, size_t buffer_size);
 
     bool AWrite(const uint8_t* buffer, size_t buffer_size);
     bool CWrite(const uint8_t* buffer, size_t buffer_size);
     bool CustomWrite(const uint8_t* buffer, size_t offset, size_t buffer_size);
 
-    Stream(OpenMode mode, uint64_t buffer_size);
+    Stream(OpenMode mode);
 
  public:
     Stream() = default;
@@ -80,8 +79,8 @@ class Stream {
     ssize_t Read(IOBuffer& buffer, size_t offset = 0);
     ssize_t CRead(std::vector<uint8_t>& buffer);
     ssize_t CRead(IOBuffer& buffer);
-    ssize_t CustomRead(std::vector<uint8_t>& buffer, size_t offset, size_t buffer_size);
-    ssize_t CustomRead(IOBuffer& buffer, size_t offset, size_t buffer_size);
+    ssize_t CustomRead(std::vector<uint8_t>& buffer, size_t offset);
+    ssize_t CustomRead(IOBuffer& buffer, size_t offset);
 
     bool AWrite(const std::vector<uint8_t>& buffer);
     bool AWrite(const IOBuffer& buffer);
@@ -95,13 +94,13 @@ class Stream {
 
     void Close();
 
-    friend Stream CreateStream(const char* name, OpenMode mode, uint64_t buffer_size);
+    friend Stream CreateStream(const char* name, OpenMode mode);
 
     ~Stream();
 };
 
 
-Stream CreateStream(const char* name, OpenMode mode, uint64_t buffer_size = 4096);
+Stream CreateStream(const char* name, OpenMode mode);
 
 
 } // namespace wiseio

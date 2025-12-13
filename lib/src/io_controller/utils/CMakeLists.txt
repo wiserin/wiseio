@@ -1,0 +1,5 @@
+set(WISEIO_STREAM_UTILS_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/stat.cpp)
+
+
+target_sources(WiseIO PRIVATE ${WISEIO_STREAM_UTILS_SRC})

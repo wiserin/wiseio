@@ -1,6 +1,5 @@
 .cache
 build/
 logging/
+test*.txt
 out.txt
-test.txt
-test2.txt

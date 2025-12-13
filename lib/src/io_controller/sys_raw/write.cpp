@@ -11,6 +11,8 @@ namespace wiseio {
 bool Stream::AWrite(const uint8_t* buffer, size_t buffer_size) {
     size_t written = 0;
 
+    FdCheck();
+
     while (written < buffer_size) {
         ssize_t res = write(fd_, buffer + written, buffer_size - written);
 
@@ -30,6 +32,8 @@ bool Stream::AWrite(const uint8_t* buffer, size_t buffer_size) {
 
 bool Stream::CWrite(const uint8_t* buffer, size_t buffer_size) {
     size_t written = 0;
+
+    FdCheck();
 
     while (written < buffer_size) {
         ssize_t res = pwrite(fd_, buffer + written, buffer_size - written, cursor_ + written);
@@ -52,6 +56,8 @@ bool Stream::CWrite(const uint8_t* buffer, size_t buffer_size) {
 
 bool Stream::CustomWrite(const uint8_t* buffer, size_t offset, size_t buffer_size) {
     size_t written = 0;
+
+    FdCheck();
 
     while (written < buffer_size) {
         ssize_t res = pwrite(fd_, buffer + written, buffer_size - written, offset + written);

@@ -4,7 +4,7 @@ include(FetchContent)
 FetchContent_Declare(
     WiseLogging
     GIT_REPOSITORY https://github.com/wiserin/CPP-logging.git
-    GIT_TAG v1.0.1
+    GIT_TAG v1.0.2
 )
 FetchContent_MakeAvailable(WiseLogging)
 
@@ -18,4 +18,5 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 
 add_subdirectory(lib)
+add_subdirectory(bin)
 

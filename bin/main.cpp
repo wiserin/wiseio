@@ -1,4 +1,7 @@
+#include <cstdint>
 #include <iostream>  // Copyright 2025 wiserin
+#include <ostream>
+#include <string>
 #include <sys/types.h>
 #include <vector>
 
@@ -8,6 +11,16 @@
 #include "wise-io/schemas.hpp"
 
 
+std::ostream& operator<<(std::ostream& stream, std::vector<uint8_t> data) {
+    for (uint8_t el : data) {
+        std::cout << (char) el << ' ';
+    }
+    std::cout << '\n';
+    return stream;
+}
+
+
+
 const std::vector<uint8_t> kMagicBytes {0x48, 0x41, 0x4D, 0x4D, 0x49, 0x4E, 0x47, 0x01};
 
 int main() {
@@ -15,47 +28,34 @@ int main() {
 
     wiseio::Stream file = wiseio::CreateStream("test2.txt", wiseio::OpenMode::kReadAndWrite);
 
-    // std::vector<uint8_t> init_data = kMagicBytes;
-    // init_data.resize(init_data.size() + 8, 0);
+    std::string str;
 
-    std::vector<uint8_t> load_buffer;
-    load_buffer.reserve(4095);
-    file.CRead(load_buffer);
-    file.CWrite(load_buffer);
-    std::cout << "Size: " << load_buffer.size() << std::endl;
+    // std::cout << str << std::endl;
+    // str.resize(100);
 
-    // std::vector<uint8_t> buffer {'x', 'a', 'a', 'a'};
-    // file.CWrite(init_data);
-}
+    // file.CRead(str);
 
-    // wiseio::Stream out_file = wiseio::CreateStream("out.txt", wiseio::OpenMode::kWrite);
+    // std::cout << str.size() << std::endl;
+    // std::cout << str << std::endl;
 
-    // std::vector<uint8_t> buffer;
+    // file.CustomWrite(str, 12);
 
-    // buffer.reserve(4096);
-    // buffer.reserve(1);
-    // std::cerr << "Ok 1" << std::endl;
+    std::cout << file.GetFileSize() << std::endl;
 
-    // int state = file.Read(buffer);
+    // // std::vector<uint8_t> init_data = kMagicBytes;
+    // // init_data.resize(init_data.size() + 8, 0);
 
-    // for(uint8_t el: buffer) {
-    //     std::cerr << el;
+    // std::vector<uint8_t> load_buffer;
+    // load_buffer.resize(3);
+    // file.CustomRead(load_buffer, 4);
+
+    // std::cout << "Size: " << std::to_string(load_buffer.size()) << std::endl;
+
+    // for (uint8_t el : load_buffer) {
+    //     std::cout << (int) el << ' ';
     // }
+    // std::cout << '\n';
 
-    // std::cerr << "Ok 2" << std::endl;
+    // std::cout << load_buffer << std::endl;
 
-    // wiseio::IOBuffer out_buff;
-
-    // std::cerr << "Ok 3" << std::endl;
-    // out_buff.Add(buffer);
-
-    // std::cerr << "Ok 4" << std::endl;
-
-    // out_file.CustomWrite(buffer, 1);
-    
-    // out_file.Write(buffer);
-    // out_file.Write(buffer);
-
-
-    // std::string text(buffer.begin(), buffer.end());
-    // std::cout << text << std::endl;
+}

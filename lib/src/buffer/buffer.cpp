@@ -1,17 +1,17 @@
 #include <cstdint>  // Copyright 2025 wiserin
-#include <memory>
 #include <utility>
 
 #include <vector>
 
 #include "wise-io/stream.hpp"
+#include "wise-io/buffer.hpp"
 
 
 namespace wiseio {
 
 IOBuffer::IOBuffer(size_t buffer_size)
         : buffer_size_(buffer_size) {
-    data_ = std::make_unique<uint8_t[]>(buffer_size);
+    // data_ = std::make_unique<uint8_t[]>(buffer_size);
     len_ = 0;
     cursor_ = 0;
 }
@@ -54,11 +54,11 @@ bool IOBuffer::Add(const std::vector<uint8_t>& buffer) {
 
 
 bool IOBuffer::Clear() {
-    data_.reset();
-    data_ = std::make_unique<uint8_t[]>(buffer_size_);
-    len_ = 0;
-    cursor_ = 0;
-    return true;
+    // data_.reset();
+    // data_ = std::make_unique<uint8_t[]>(buffer_size_);
+    // len_ = 0;
+    // cursor_ = 0;
+    // return true;
 }
 
 
@@ -73,7 +73,7 @@ size_t IOBuffer::GetBufferSize() const {
 
 
 uint8_t* IOBuffer::GetDataPtr() const {
-    return data_.get();
+    // return data_.get();
 }
 
 

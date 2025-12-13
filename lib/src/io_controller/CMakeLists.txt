@@ -4,6 +4,7 @@ set(WISEIO_STREAM_SRC
 
 target_sources(WiseIO PRIVATE ${WISEIO_STREAM_SRC})
 
-add_subdirectory(private)
+add_subdirectory(sys_raw)
 add_subdirectory(read)
 add_subdirectory(write)
+add_subdirectory(utils)

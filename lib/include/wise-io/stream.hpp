@@ -1,45 +1,20 @@
 #pragma once  // Copyright 2025 wiserin
 #include <cstddef>
 #include <cstdint>
-#include <memory>
+#include <string>
 #include <vector>
+#include <sys/stat.h>
 
 #include "logging/logger.hpp"
 #include "wise-io/schemas.hpp"
 
+using stat_t = struct stat;
+using str = std::string;
+
 
 namespace wiseio {
 
-class IOBuffer {
-    std::unique_ptr<uint8_t[]> data_;
-    uint64_t buffer_size_;
-    size_t len_;
-    size_t cursor_;
-
- public:
-    IOBuffer(size_t buffer_size);
-
-    IOBuffer() = default;
-    IOBuffer(IOBuffer&& buffer);
-    IOBuffer& operator=(IOBuffer&& buffer) = default;
-
-    size_t ReadFromBuffer() const;
-    bool AddByte(uint8_t byte);
-    bool Add(const std::vector<uint8_t>& buffer);
-    bool Clear();
-
-    size_t GetBufferLen() const;
-    size_t GetBufferSize() const;
-    uint8_t* GetDataPtr() const;
-
-    bool SetLen(size_t len);
-
-    bool SetCursor(size_t position);
-
-
-    ~IOBuffer() = default;
-};
-
+class IOBuffer;
 
 class Stream {
     int fd_ = -1;
@@ -57,13 +32,15 @@ class Stream {
 
     bool Open(const char* path);
 
-    ssize_t Read(uint8_t* buffer, size_t offset, size_t buffer_size);
     ssize_t CRead(uint8_t* buffer, size_t buffer_size);
     ssize_t CustomRead(uint8_t* buffer, size_t offset, size_t buffer_size);
 
     bool AWrite(const uint8_t* buffer, size_t buffer_size);
     bool CWrite(const uint8_t* buffer, size_t buffer_size);
     bool CustomWrite(const uint8_t* buffer, size_t offset, size_t buffer_size);
+
+    void UpdateStat(stat_t& file_stat) const;
+    void FdCheck() const;
 
     Stream(OpenMode mode);
 
@@ -75,22 +52,27 @@ class Stream {
     Stream(Stream& stream) = delete;
     Stream& operator=(Stream& stream) = delete;
 
-    ssize_t Read(std::vector<uint8_t>& buffer, size_t offset = 0);
-    ssize_t Read(IOBuffer& buffer, size_t offset = 0);
     ssize_t CRead(std::vector<uint8_t>& buffer);
     ssize_t CRead(IOBuffer& buffer);
+    ssize_t CRead(str& buffer);
     ssize_t CustomRead(std::vector<uint8_t>& buffer, size_t offset);
     ssize_t CustomRead(IOBuffer& buffer, size_t offset);
+    ssize_t CustomRead(str& buffer, size_t offset);
 
     bool AWrite(const std::vector<uint8_t>& buffer);
     bool AWrite(const IOBuffer& buffer);
+    bool AWrite(const str& buffer);
     bool CWrite(const std::vector<uint8_t>& buffer);
     bool CWrite(const IOBuffer& buffer);
+    bool CWrite(const str& buffer);
     bool CustomWrite(const std::vector<uint8_t>& buffer, size_t offset);
     bool CustomWrite(const IOBuffer& buffer, size_t offset);
+    bool CustomWrite(const str& buffer, size_t offset);
 
     void SetCursor(size_t position);
-    bool IsEOF();
+
+    bool IsEOF() const;
+    size_t GetFileSize() const;
 
     void Close();
 

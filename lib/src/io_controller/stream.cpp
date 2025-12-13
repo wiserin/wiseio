@@ -46,13 +46,21 @@ void Stream::SetCursor(size_t position) {
 }
 
 
-bool Stream::IsEOF() {
+bool Stream::IsEOF() const {
     return is_eof_;
 }
 
 
 void Stream::Close() {
     close(fd_);
+}
+
+
+void Stream::FdCheck() const {
+    if (fd_ == -1) {
+        logger_.Critical("Обращение к файлу через закрытый fd");
+        throw std::runtime_error("fd error");
+    }
 }
 
 

@@ -6,9 +6,9 @@ on:
   pull_request:
     branches: [ dev ]
 
-
 jobs:
   test:
+    name: Unit tests
     runs-on: ubuntu-latest
 
     steps:
@@ -30,11 +30,70 @@ jobs:
     - name: Run tests
       run: |
         cd build/tests
-        ./wiseio_tests
+        ./wiseio_tests --gtest_output=xml:test_results.xml
+
+    - name: Unit test summary
+      if: always()
+      run: |
+        XML=build/tests/test_results.xml
+
+        if [ -f "$XML" ]; then
+          TOTAL=$(grep -o 'tests="[0-9]*"' "$XML" | head -1 | grep -o '[0-9]*')
+          FAIL=$(grep -o 'failures="[0-9]*"' "$XML" | head -1 | grep -o '[0-9]*')
+        else
+          TOTAL="?"
+          FAIL="?"
+        fi
+
+        STATUS="❌ Failed"
+        [ "${{ job.status }}" = "success" ] && STATUS="✅ Passed"
+
+        {
+          echo "## 🧪 WiseIO – Unit Tests"
+          echo ""
+          echo "| Metric | Value |"
+          echo "|-------|-------|"
+          echo "| Status | $STATUS |"
+          echo "| Total tests | $TOTAL |"
+          echo "| Failures | $FAIL |"
+        } >> $GITHUB_STEP_SUMMARY
+
+  san:
+    name: AddressSanitizer
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++
+
     - name: Configure (ASan)
       run: |
         cmake -S . -B build \
-        -DCMAKE_BUILD_TYPE=Debug \
-        -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
-        -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
 
+    - name: Build
+      run: |
+        cmake --build build -j4
+
+    - name: Run tests (ASan)
+      run: |
+        cd build/tests
+        ./wiseio_tests
+
+    - name: ASan summary
+      if: always()
+      run: |
+        STATUS="❌ Failed"
+        [ "${{ job.status }}" = "success" ] && STATUS="✅ Passed"
+
+        {
+          echo "## 🧨 AddressSanitizer"
+          echo ""
+          echo "- Status: **$STATUS**"
+        } >> $GITHUB_STEP_SUMMARY

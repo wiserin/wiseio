@@ -2,38 +2,81 @@
 #include <cstddef>
 #include <cstdint>
 #include <vector>
+#include <string>
 
+#include <wise-io/schemas.hpp>
+
+
+using str = std::string;
 
 namespace wiseio {
 
 class IOBuffer {
+ public:
+    virtual void ResizeBuffer(size_t size) = 0;
+    virtual size_t GetBufferSize() const = 0;
+    virtual uint8_t* GetDataPtr() = 0;
+    virtual const uint8_t* GetDataPtr() const = 0;
+    virtual ~IOBuffer() = default;
+};
+
+
+class BytesIOBuffer : public IOBuffer {
     std::vector<uint8_t> data_;
-    uint64_t buffer_size_;
-    size_t len_;
-    size_t cursor_;
+    size_t cursor_ = 0;
 
  public:
-    IOBuffer(size_t buffer_size);
+    uint8_t* GetDataPtr() override;
+    const uint8_t* GetDataPtr() const override;
+    size_t GetBufferSize() const override;
+    void ResizeBuffer(size_t size) override;
 
-    IOBuffer() = default;
-    IOBuffer(IOBuffer&& buffer);
-    IOBuffer& operator=(IOBuffer&& buffer) = default;
+    void SetCursor(size_t position);
+    void AddDataToBuffer(const std::vector<uint8_t>& data);
 
-    size_t ReadFromBuffer() const;
-    bool AddByte(uint8_t byte);
-    bool Add(const std::vector<uint8_t>& buffer);
-    bool Clear();
+    bool IsData() const;
 
-    size_t GetBufferLen() const;
-    size_t GetBufferSize() const;
-    uint8_t* GetDataPtr() const;
-
-    bool SetLen(size_t len);
-
-    bool SetCursor(size_t position);
+    std::vector<uint8_t> ReadFromBuffer(size_t size);
+    void Clear();
+};
 
 
-    ~IOBuffer() = default;
+class StringIOBuffer : public IOBuffer {
+    std::vector<char> data_;
+    size_t cursor_ = 0;
+    Encoding encoding_ = Encoding::kUTF_8;
+
+    bool ignore_comments_ = false;
+    bool ignore_blank_ = false;
+
+    bool Validate(std::vector<char>& line) const;
+
+    bool IsBlank(const std::vector<char>& line) const;
+    bool CommentChecker(std::vector<char>& line) const;
+
+    void DeleteComment(std::vector<char>& line) const;
+
+    std::vector<char> ReadLine();
+
+ public:
+    uint8_t* GetDataPtr() override;
+    const uint8_t* GetDataPtr() const override;
+    size_t GetBufferSize() const override;
+    void ResizeBuffer(size_t size) override;
+
+    void SetCursor(size_t position);
+    void SetIgnoreBlank(bool state);
+    void SetIgnoreComments(bool state);
+    void SetEncoding(Encoding encoding);
+
+    void AddDataToBuffer(const str& data);
+
+    str GetLine();
+    size_t GetLen() const;
+    bool IsLines() const;
+
+    str ReadFromBuffer(size_t size);
+    void Clear();
 };
 
 

@@ -25,7 +25,7 @@ bool Stream::CWrite(const IOBuffer& buffer) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме Write");
         return false;
     }
-    bool state = CWrite(buffer.GetDataPtr(), buffer.GetBufferLen());
+    bool state = CWrite(buffer.GetDataPtr(), buffer.GetBufferSize());
     return state;
 }
 

@@ -3,3 +3,4 @@ build/
 logging/
 test*.txt
 out.txt
+temp/

@@ -28,7 +28,7 @@ bool Stream::CustomWrite(const IOBuffer& buffer, size_t offset) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме Write");
         return false;
     }
-    bool state = CustomWrite(buffer.GetDataPtr(), offset, buffer.GetBufferLen());
+    bool state = CustomWrite(buffer.GetDataPtr(), offset, buffer.GetBufferSize());
     return state;
 }
 

@@ -12,6 +12,10 @@ namespace wiseio {
 
 ssize_t Stream::CustomRead(std::vector<uint8_t>& buffer, size_t offset) {
     if (is_eof_) return 0;
+    if (mode_ != OpenMode::kRead && mode_ != OpenMode::kReadAndWrite) {
+        logger_.Exception("Для использования этого метода файл должен быть открыт в режиме read");
+        return false;
+    }
 
     ssize_t len = CustomRead(buffer.data(), offset, buffer.size());
     if (len >= 0) {
@@ -23,16 +27,24 @@ ssize_t Stream::CustomRead(std::vector<uint8_t>& buffer, size_t offset) {
 
 ssize_t Stream::CustomRead(IOBuffer& buffer, size_t offset) {
     if (is_eof_) return 0;
+    if (mode_ != OpenMode::kRead && mode_ != OpenMode::kReadAndWrite) {
+        logger_.Exception("Для использования этого метода файл должен быть открыт в режиме read");
+        return false;
+    }
 
     ssize_t len = CustomRead(buffer.GetDataPtr(), offset, buffer.GetBufferSize());
     if (len >= 0) {
-        buffer.SetLen(len);
+        buffer.ResizeBuffer(len);
     }
     return len;
 }
 
 ssize_t Stream::CustomRead(str& buffer, size_t offset) {
     if (is_eof_) return 0;
+    if (mode_ != OpenMode::kRead && mode_ != OpenMode::kReadAndWrite) {
+        logger_.Exception("Для использования этого метода файл должен быть открыт в режиме read");
+        return false;
+    }
 
     ssize_t len = CustomRead(reinterpret_cast<uint8_t*>(buffer.data()), offset, buffer.size());
     if (len >= 0) {

@@ -58,6 +58,9 @@ class Stream {
     ssize_t CustomRead(std::vector<uint8_t>& buffer, size_t offset);
     ssize_t CustomRead(IOBuffer& buffer, size_t offset);
     ssize_t CustomRead(str& buffer, size_t offset);
+    ssize_t ReadAll(std::vector<uint8_t>& buffer);
+    ssize_t ReadAll(IOBuffer& buffer);
+    ssize_t ReadAll(str& buffer);
 
     bool AWrite(const std::vector<uint8_t>& buffer);
     bool AWrite(const IOBuffer& buffer);

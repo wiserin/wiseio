@@ -10,5 +10,10 @@ enum class OpenMode {
     kReadAndWrite
 };
 
+enum class Encoding {
+    kUTF_8 = 1,
+    kUTF_16
+};
+
 
 } // namespace wiseio

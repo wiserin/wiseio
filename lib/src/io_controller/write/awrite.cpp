@@ -26,7 +26,7 @@ bool Stream::AWrite(const IOBuffer& buffer) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме Append");
         return false;
     }
-    bool state = AWrite(buffer.GetDataPtr(), buffer.GetBufferLen());
+    bool state = AWrite(buffer.GetDataPtr(), buffer.GetBufferSize());
     return state;
 }
 

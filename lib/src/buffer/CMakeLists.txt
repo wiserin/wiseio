@@ -1,5 +1,2 @@
-set(WISEIO_BUFFER_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/buffer.cpp)
-
-
-target_sources(WiseIO PRIVATE ${WISEIO_BUFFER_SRC})
+add_subdirectory(bytes_buffer)
+add_subdirectory(string_buffer)

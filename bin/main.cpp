@@ -1,5 +1,5 @@
-#include <cstdint>
-#include <iostream>  // Copyright 2025 wiserin
+#include <cstdint>  // Copyright 2025 wiserin
+#include <iostream>
 #include <ostream>
 #include <string>
 #include <sys/types.h>
@@ -9,6 +9,7 @@
 #include "logging/schemas.hpp"
 #include "wise-io/stream.hpp"
 #include "wise-io/schemas.hpp"
+#include "wise-io/buffer.hpp"
 
 
 std::ostream& operator<<(std::ostream& stream, std::vector<uint8_t> data) {
@@ -26,36 +27,43 @@ const std::vector<uint8_t> kMagicBytes {0x48, 0x41, 0x4D, 0x4D, 0x49, 0x4E, 0x47
 int main() {
     logging::Logger::SetupLogger(logging::LoggerMode::kDebug, logging::LoggerIOMode::kSync, true);
 
-    wiseio::Stream file = wiseio::CreateStream("test2.txt", wiseio::OpenMode::kReadAndWrite);
+    // wiseio::Stream file = wiseio::CreateStream("test2.txt", wiseio::OpenMode::kReadAndWrite);
 
-    std::string str;
+    // auto stream = wiseio::CreateStream("out.txt", wiseio::OpenMode::kWrite);
+    //     wiseio::StringIOBuffer buffer;
+        
+    //     buffer.AddDataToBuffer(
+    //         "# Configuration file\n"
+    //         "setting1=value1\n"
+    //         "# This is a comment\n"
+    //         "setting2=value2\n"
+    //         "setting3=value3 # inline comment\n"
+    //     );
+        
+    //     stream.CWrite(buffer);
 
-    // std::cout << str << std::endl;
-    // str.resize(100);
 
-    // file.CRead(str);
+    auto stream = wiseio::CreateStream("out.txt", wiseio::OpenMode::kRead);
+        wiseio::StringIOBuffer buffer;
+        
+        buffer.SetIgnoreComments(true);
+        
+        size_t file_size = stream.GetFileSize();
+        buffer.ResizeBuffer(file_size);
+        stream.CRead(buffer);
+        
+        buffer.SetCursor(0);
 
-    // std::cout << str.size() << std::endl;
-    // std::cout << str << std::endl;
+        std::cout << buffer.GetBufferSize() << std::endl;
+        
+        std::vector<std::string> lines;
+        while (buffer.IsLines()) {
+            std::string line = buffer.GetLine();
+            if (!line.empty()) {
+                // lines.push_back(line);
+                std::cout << line << std::endl;
+            }
+        }
 
-    // file.CustomWrite(str, 12);
-
-    std::cout << file.GetFileSize() << std::endl;
-
-    // // std::vector<uint8_t> init_data = kMagicBytes;
-    // // init_data.resize(init_data.size() + 8, 0);
-
-    // std::vector<uint8_t> load_buffer;
-    // load_buffer.resize(3);
-    // file.CustomRead(load_buffer, 4);
-
-    // std::cout << "Size: " << std::to_string(load_buffer.size()) << std::endl;
-
-    // for (uint8_t el : load_buffer) {
-    //     std::cout << (int) el << ' ';
-    // }
-    // std::cout << '\n';
-
-    // std::cout << load_buffer << std::endl;
 
 }

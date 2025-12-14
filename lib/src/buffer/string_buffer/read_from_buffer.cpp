@@ -19,7 +19,7 @@ std::vector<char> StringIOBuffer::ReadLine() {
         ++cursor_;
     }
 
-    if (data_[cursor_] == '\n' && cursor_ < data_.size()) {
+    if (cursor_ < data_.size() && data_[cursor_] == '\n') {
         ++cursor_;
     }
 

@@ -47,6 +47,11 @@ void StringIOBuffer::SetIgnoreComments(bool state) {
 }
 
 
+void StringIOBuffer::SetIgnoreBlank(bool state) {
+    ignore_blank_ = state;
+}
+
+
 void StringIOBuffer::SetEncoding(Encoding encoding) {
     encoding_ = encoding;
 }

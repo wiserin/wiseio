@@ -1,0 +1,9 @@
+set(WISEIO_CORE_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/open_file.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/close.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/read.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/write.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils.c)
+
+
+target_sources(WiseIOCore PRIVATE ${WISEIO_CORE_SRC})

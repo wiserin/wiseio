@@ -2,9 +2,10 @@
 #include <vector>
 #include <string>
 
+#include <core.h>
+
 #include "wise-io/stream.hpp"
 #include "wise-io/buffer.hpp"
-#include "wise-io/core.hpp"
 
 
 using str = std::string;
@@ -19,9 +20,9 @@ ssize_t Stream::CRead(std::vector<uint8_t>& buffer) {
         return false;
     }
 
-    ssize_t len =  core::CRead(
+    ssize_t len =  wcore_cread(
         fd_, buffer.data(), buffer.size(),
-        is_eof_, cursor_, logger_);
+        &is_eof_, &cursor_);
     if (len >= 0) {
         buffer.resize(len);
     }
@@ -37,9 +38,9 @@ ssize_t Stream::CRead(IOBuffer& buffer) {
         return false;
     }
 
-    ssize_t len =  core::CRead(
+    ssize_t len =  wcore_cread(
         fd_, buffer.GetDataPtr(), buffer.GetBufferSize(),
-        is_eof_, cursor_, logger_);
+        &is_eof_, &cursor_);
     if (len >= 0) {
         buffer.ResizeBuffer(len);
     }
@@ -54,9 +55,9 @@ ssize_t Stream::CRead(str& buffer) {
         return false;
     }
 
-    ssize_t len =  core::CRead(
+    ssize_t len =  wcore_cread(
         fd_, reinterpret_cast<uint8_t*>(buffer.data()), buffer.size(),
-        is_eof_, cursor_, logger_);
+        &is_eof_, &cursor_);
     if (len >= 0) {
         buffer.resize(len);
     }

@@ -10,16 +10,31 @@ enum class OpenMode {
     kReadAndWrite
 };
 
+
 enum class Encoding {
     kUTF_8 = 1,
     kUTF_16
 };
+
 
 enum class NumSize {
     kUint8_t = 1,
     kUint16_t = 2,
     kUint32_t = 4,
     kUint64_t = 8,
+};
+
+
+enum class StorageState {
+    kClean = 0,
+    kDirty,
+    kCommited
+};
+
+
+enum class Endiannes {
+    kLittleEndian = 0,
+    kBigEndian
 };
 
 

@@ -3,10 +3,11 @@
 #include <string>
 #include <utility>
 
+#include <core.h>
+
 #include "wise-io/stream.hpp"
 #include "wise-io/schemas.hpp"
 #include "logging/logger.hpp"
-#include "wise-io/core.hpp"
 
 
 namespace wiseio {
@@ -47,6 +48,11 @@ void Stream::SetCursor(size_t position) {
 }
 
 
+size_t Stream::GetCursor() {
+    return cursor_;
+}
+
+
 bool Stream::IsEOF() const {
     return is_eof_;
 }
@@ -61,12 +67,12 @@ void Stream::FdCheck() const {
 
 
 void Stream::Close() {
-    core::Close(fd_);
+    wcore_close(fd_);
 }
 
 
 Stream::~Stream() {
-    core::Close(fd_);
+    wcore_close(fd_);
 }
 
 
@@ -74,19 +80,19 @@ bool Stream::Open(const char* path) {
     fd_ = -1;
     switch (mode_) {
         case (OpenMode::kRead) : {
-            fd_ = core::ORead(path);
+            fd_ = wcore_o_read(path);
             break;
         }
         case (OpenMode::kWrite) : {
-            fd_ = core::OWrite(path);
+            fd_ = wcore_o_write(path);
             break;
         }
         case (OpenMode::kAppend) : {
-            fd_ = core::OAppend(path);
+            fd_ = wcore_o_append(path);
             break;
         }
         case (OpenMode::kReadAndWrite) : {
-            fd_ = core::ReadAndWrite(path);
+            fd_ = wcore_read_and_write(path);
             break;
         }
     }

@@ -1,49 +1,45 @@
-#include <cstddef>  // Copyright 2025 wiserin
+#include <stddef.h>  // Copyright 2025 wiserin
 #include <unistd.h>
 #include <fcntl.h>
-
-#include <logging/logger.hpp>
-
-#include "wise-io/stream.hpp"
-
-
-namespace wiseio::core {
+#include <stdint.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 
-ssize_t CRead(
-        int fd, uint8_t* buffer, size_t buffer_size,
-        bool& is_eof, size_t& cursor, const logging::Logger& logger) {
+ssize_t wcore_cread(
+        int fd, uint8_t* buffer, size_t buffer_size, bool* is_eof, size_t* cursor) {
+
     size_t count = 0;
 
     while (count < buffer_size) {
-        ssize_t c_bytes = pread(fd, buffer + count, buffer_size - count, cursor + count);
+        ssize_t c_bytes = pread(fd, buffer + count, buffer_size - count, *cursor + count);
 
         if (c_bytes + count >= buffer_size) {
             count += c_bytes;
             break;
         } else if (c_bytes == 0) {
-            is_eof = true;
-            logger.Debug("Достигнут конец файла");
+            *is_eof = true;
             break;
         } else if (c_bytes < 0) {
             if (errno == EINTR) {
                 continue;
             }
-            logger.Error("Ошибка при чтении файла Errno: " + std::to_string(errno));
+            printf("WiseIO core error (wcore_read). Errno: %d", errno);
             return -1;
         } else {
             count += c_bytes;
         }
     }
-    cursor += count;
+    *cursor += count;
 
     return count;
 }
 
 
-ssize_t CustomRead(
-        int fd, uint8_t* buffer, size_t offset, size_t buffer_size,
-        bool& is_eof, const logging::Logger& logger) {
+ssize_t wcore_custom_read(
+        int fd, uint8_t* buffer, size_t offset, size_t buffer_size, bool* is_eof) {
+
     size_t count = 0;
 
     while (count < buffer_size) {
@@ -53,14 +49,13 @@ ssize_t CustomRead(
             count += c_bytes;
             break;
         } else if (c_bytes == 0) {
-            is_eof = true;
-            logger.Debug("Достигнут конец файла");
+            *is_eof = true;
             break;
         } else if (c_bytes < 0) {
             if (errno == EINTR) {
                 continue;
             }
-            logger.Error("Ошибка при чтении файла Errno: " + std::to_string(errno));
+            printf("WiseIO core error (wcore_read). Errno: %d", errno);
             return -1;
         } else {
             count += c_bytes;
@@ -69,5 +64,3 @@ ssize_t CustomRead(
 
     return count;
 }
-
-} // namespace wiseio

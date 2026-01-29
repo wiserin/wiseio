@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <sys/stat.h>
 
 #include "logging/logger.hpp"
 #include "wise-io/schemas.hpp"
@@ -27,7 +26,6 @@ class Stream {
 
     bool Open(const char* path);
 
-    void UpdateStat(stat_t& file_stat) const;
     void FdCheck() const;
 
     Stream(OpenMode mode);
@@ -56,11 +54,13 @@ class Stream {
     bool CWrite(const std::vector<uint8_t>& buffer);
     bool CWrite(const IOBuffer& buffer);
     bool CWrite(const str& buffer);
-    bool CustomWrite(const std::vector<uint8_t>& buffer, size_t offset);
-    bool CustomWrite(const IOBuffer& buffer, size_t offset);
-    bool CustomWrite(const str& buffer, size_t offset);
+    bool CustomWrite(const std::vector<uint8_t>& buffer, size_t offset) const;
+    bool CustomWrite(const IOBuffer& buffer, size_t offset) const;
+    bool CustomWrite(const str& buffer, size_t offset) const;
 
     void SetCursor(size_t position);
+
+    size_t GetCursor();
 
     bool IsEOF() const;
     size_t GetFileSize() const;

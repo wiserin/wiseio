@@ -3,9 +3,11 @@
 #include <vector>
 #include <string>
 
+#include <core.h>
+
 #include "wise-io/stream.hpp"
 #include "wise-io/buffer.hpp"
-#include "wise-io/core.hpp"
+
 
 using str = std::string;
 
@@ -19,9 +21,9 @@ ssize_t Stream::CustomRead(std::vector<uint8_t>& buffer, size_t offset) {
         return false;
     }
 
-    ssize_t len = core::CustomRead(
+    ssize_t len = wcore_custom_read(
         fd_, buffer.data(), offset, buffer.size(),
-        is_eof_, logger_);
+        &is_eof_);
     if (len >= 0) {
         buffer.resize(len);
     }
@@ -37,9 +39,9 @@ ssize_t Stream::CustomRead(IOBuffer& buffer, size_t offset) {
         return false;
     }
 
-    ssize_t len = core::CustomRead(
+    ssize_t len = wcore_custom_read(
         fd_, buffer.GetDataPtr(), offset, buffer.GetBufferSize(),
-        is_eof_, logger_);
+        &is_eof_);
     if (len >= 0) {
         buffer.ResizeBuffer(len);
     }
@@ -54,9 +56,9 @@ ssize_t Stream::CustomRead(str& buffer, size_t offset) {
         return false;
     }
 
-    ssize_t len = core::CustomRead(
+    ssize_t len = wcore_custom_read(
         fd_, reinterpret_cast<uint8_t*>(buffer.data()), offset, buffer.size(),
-        is_eof_, logger_);
+        &is_eof_);
     if (len >= 0) {
         buffer.resize(len);
     }

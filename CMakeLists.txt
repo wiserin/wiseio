@@ -20,7 +20,7 @@ project(
     WiseIO
     VERSION 1.0
     DESCRIPTION "Wise IO controller"
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 
 set(CMAKE_CXX_STANDARD 23)
@@ -28,6 +28,6 @@ set(CMAKE_CXX_STANDARD 23)
 enable_testing()
 
 add_subdirectory(lib)
-# add_subdirectory(bin)
+add_subdirectory(core)
 
 add_subdirectory(tests)

@@ -1,7 +1,9 @@
 #include <cstddef>  // Copyright 2025 wiserin
 #include <stdexcept>
-#include <unistd.h>
+#include <string>
 #include <utility>
+
+#include <core.h>
 
 #include "wise-io/stream.hpp"
 #include "wise-io/schemas.hpp"
@@ -46,13 +48,13 @@ void Stream::SetCursor(size_t position) {
 }
 
 
-bool Stream::IsEOF() const {
-    return is_eof_;
+size_t Stream::GetCursor() {
+    return cursor_;
 }
 
 
-void Stream::Close() {
-    close(fd_);
+bool Stream::IsEOF() const {
+    return is_eof_;
 }
 
 
@@ -64,8 +66,46 @@ void Stream::FdCheck() const {
 }
 
 
+void Stream::Close() {
+    wcore_close(fd_);
+}
+
+
 Stream::~Stream() {
-    Close();
+    wcore_close(fd_);
+}
+
+
+bool Stream::Open(const char* path) {
+    fd_ = -1;
+    switch (mode_) {
+        case (OpenMode::kRead) : {
+            fd_ = wcore_o_read(path);
+            break;
+        }
+        case (OpenMode::kWrite) : {
+            fd_ = wcore_o_write(path);
+            break;
+        }
+        case (OpenMode::kAppend) : {
+            fd_ = wcore_o_append(path);
+            break;
+        }
+        case (OpenMode::kReadAndWrite) : {
+            fd_ = wcore_read_and_write(path);
+            break;
+        }
+    }
+
+    if (fd_ > 0) {
+        logger_.Debug("Файл открыт в режиме " + std::to_string(
+            static_cast<int>(mode_)));
+        return true;
+    } else {
+        logger_.Error("Ошибка при открытии файла. FD: " + std::to_string(
+            fd_));
+        return false;
+    }
 }
 
 

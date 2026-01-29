@@ -2,9 +2,12 @@
 #include <vector>
 #include <string>
 
+#include <core.h>
+
 #include "wise-io/stream.hpp"
 #include "wise-io/schemas.hpp"
 #include "wise-io/buffer.hpp"
+
 
 using str = std::string;
 
@@ -15,7 +18,9 @@ bool Stream::CWrite(const std::vector<uint8_t>& buffer) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме Write");
         return false;
     }
-    bool state = CWrite(buffer.data(), buffer.size());
+    bool state = wcore_cwrite(
+        fd_, buffer.data(), buffer.size(),
+        &cursor_);
     return state;
 }
 
@@ -25,7 +30,9 @@ bool Stream::CWrite(const IOBuffer& buffer) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме Write");
         return false;
     }
-    bool state = CWrite(buffer.GetDataPtr(), buffer.GetBufferSize());
+    bool state = wcore_cwrite(
+        fd_, buffer.GetDataPtr(), buffer.GetBufferSize(),
+        &cursor_);
     return state;
 }
 
@@ -34,7 +41,9 @@ bool Stream::CWrite(const str& buffer) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме Write");
         return false;
     }
-    bool state = CWrite(reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size());
+    bool state = wcore_cwrite(
+        fd_, reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size(),
+        &cursor_);
     return state;
 }
 

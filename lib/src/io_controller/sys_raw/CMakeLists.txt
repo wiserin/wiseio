@@ -1,7 +1,0 @@
-set(WISEIO_STREAM_PRIVATE_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/open_file.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/read.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/write.cpp)
-
-
-target_sources(WiseIO PRIVATE ${WISEIO_STREAM_PRIVATE_SRC})

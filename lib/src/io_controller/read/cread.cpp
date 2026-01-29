@@ -2,8 +2,11 @@
 #include <vector>
 #include <string>
 
+#include <core.h>
+
 #include "wise-io/stream.hpp"
 #include "wise-io/buffer.hpp"
+
 
 using str = std::string;
 
@@ -11,12 +14,15 @@ namespace wiseio {
 
 ssize_t Stream::CRead(std::vector<uint8_t>& buffer) {
     if (is_eof_) return 0;
+    FdCheck();
     if (mode_ != OpenMode::kRead && mode_ != OpenMode::kReadAndWrite) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме read");
         return false;
     }
 
-    ssize_t len =  CRead(buffer.data(), buffer.size());
+    ssize_t len =  wcore_cread(
+        fd_, buffer.data(), buffer.size(),
+        &is_eof_, &cursor_);
     if (len >= 0) {
         buffer.resize(len);
     }
@@ -26,12 +32,15 @@ ssize_t Stream::CRead(std::vector<uint8_t>& buffer) {
 
 ssize_t Stream::CRead(IOBuffer& buffer) {
     if (is_eof_) return 0;
+    FdCheck();
     if (mode_ != OpenMode::kRead && mode_ != OpenMode::kReadAndWrite) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме read");
         return false;
     }
 
-    ssize_t len =  CRead(buffer.GetDataPtr(), buffer.GetBufferSize());
+    ssize_t len =  wcore_cread(
+        fd_, buffer.GetDataPtr(), buffer.GetBufferSize(),
+        &is_eof_, &cursor_);
     if (len >= 0) {
         buffer.ResizeBuffer(len);
     }
@@ -40,12 +49,15 @@ ssize_t Stream::CRead(IOBuffer& buffer) {
 
 ssize_t Stream::CRead(str& buffer) {
     if (is_eof_) return 0;
+    FdCheck();
     if (mode_ != OpenMode::kRead && mode_ != OpenMode::kReadAndWrite) {
         logger_.Exception("Для использования этого метода файл должен быть открыт в режиме read");
         return false;
     }
 
-    ssize_t len =  CRead(reinterpret_cast<uint8_t*>(buffer.data()), buffer.size());
+    ssize_t len =  wcore_cread(
+        fd_, reinterpret_cast<uint8_t*>(buffer.data()), buffer.size(),
+        &is_eof_, &cursor_);
     if (len >= 0) {
         buffer.resize(len);
     }

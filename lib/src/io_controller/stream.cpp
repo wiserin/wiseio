@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <errno.h>
 
 #include <core.h>
 
@@ -11,6 +12,14 @@
 
 
 namespace wiseio {
+
+class segmentation_fault : public std::exception {
+public:
+    const char* what() const noexcept override {
+        return "Segmentation fault (core dumped)";
+    }
+};
+
 
 Stream::Stream(OpenMode io_mode)
         : mode_(io_mode) {}
@@ -43,7 +52,12 @@ Stream& Stream::operator=(Stream&& another) {
     return *this;
 }
 
+
 void Stream::SetCursor(size_t position) {
+    size_t fsize = GetFileSize();
+    if (position > fsize) {
+        throw segmentation_fault();
+    }
     cursor_ = position;
 }
 
@@ -103,7 +117,7 @@ bool Stream::Open(const char* path) {
         return true;
     } else {
         logger_.Error("Ошибка при открытии файла. FD: " + std::to_string(
-            fd_));
+            fd_) + " Errno: " + std::to_string(errno));
         return false;
     }
 }

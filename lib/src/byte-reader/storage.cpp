@@ -4,15 +4,23 @@
 #include <vector>
 #include <string>
 
-#include "wise-io/core.hpp"
+#include <wise-io/byte/storage.hpp>
 #include "wise-io/schemas.hpp"
-#include "wise-io/stream.hpp"
-#include "wise-io/buffer.hpp"
 
 
 using str = std::string;
 
 namespace wiseio {
+
+std::vector<uint8_t>& Storage::GetData() {
+    state_ = StorageState::kDirty;
+    return data_;
+}
+
+
+bool Storage::IsChanged() {
+    return state_ != StorageState::kClean;
+}
 
 
 } // namespace wiseio

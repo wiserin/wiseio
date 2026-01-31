@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "wise-io/core.hpp"
+#include "wise-io/byte/chunks.hpp"
 #include "wise-io/schemas.hpp"
 #include "wise-io/stream.hpp"
 #include "wise-io/buffer.hpp"
@@ -14,5 +14,42 @@ using str = std::string;
 
 namespace wiseio {
 
+ValidateChunk::ValidateChunk(size_t size)
+        : size_(size) {}
+
+
+void ValidateChunk::Init(wiseio::Stream& stream) {
+
+}
+
+
+void ValidateChunk::Load(Stream& stream) {
+
+}
+
+
+std::vector<uint8_t> ValidateChunk::GetCompiledChunk() {
+    
+}
+
+
+bool ValidateChunk::IsInitialized() {
+
+}
+
+
+size_t ValidateChunk::GetOffset() {
+
+}
+
+
+size_t ValidateChunk::GetSize() {
+
+}
+
+
+Storage& ValidateChunk::GetStorage() {
+
+}
 
 } // namespace wiseio

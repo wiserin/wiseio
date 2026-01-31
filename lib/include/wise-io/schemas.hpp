@@ -31,8 +31,13 @@ enum class StorageState {
     kCommited
 };
 
+enum class ChunkInitState {
+    kUninitialized,
+    kFileBacked
+};
 
-enum class Endiannes {
+
+enum class Endianess {
     kLittleEndian = 0,
     kBigEndian
 };

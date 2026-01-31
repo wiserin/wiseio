@@ -5,11 +5,9 @@
 #include <vector>
 #include <string>
 
-#include "wise-io/byte-reader.hpp"
-#include "wise-io/core.hpp"
+#include "wise-io/byte/chunks.hpp"
 #include "wise-io/schemas.hpp"
 #include "wise-io/stream.hpp"
-#include "wise-io/buffer.hpp"
 
 
 using str = std::string;
@@ -21,8 +19,39 @@ ByteChunk::ByteChunk(NumSize size)
     : len_num_size_(size) {}
 
 
-void ByteChunk::Load(wiseio::Stream& stream) {
-    std::
+void ByteChunk::Init(wiseio::Stream& stream) {
+
 }
+
+
+void ByteChunk::Load(Stream& stream) {
+
+}
+
+
+std::vector<uint8_t> ByteChunk::GetCompiledChunk() {
+    
+}
+
+
+bool ByteChunk::IsInitialized() {
+
+}
+
+
+size_t ByteChunk::GetOffset() {
+
+}
+
+
+size_t ByteChunk::GetSize() {
+
+}
+
+
+Storage& ByteChunk::GetStorage() {
+
+}
+
 
 } // namespace wiseio

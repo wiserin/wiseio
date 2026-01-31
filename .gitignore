@@ -4,3 +4,4 @@ logging/
 test*.txt
 out.txt
 temp/
+bin/

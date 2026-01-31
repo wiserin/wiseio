@@ -1,0 +1,6 @@
+set(WISEIO_BYTE_READER_FILE_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/byte_file.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/engine.cpp)
+
+
+target_sources(WiseIO PRIVATE ${WISEIO_BYTE_READER_FILE_SRC})

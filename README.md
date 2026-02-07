@@ -51,7 +51,7 @@ target_link_libraries(your_target PRIVATE WiseIO)
 ### Manual Installation
 
 ```bash
-git clone https://github.com/yourusername/file-io.git
+git clone https://github.com/yourusername/wiseio.git
 cd file-io
 mkdir build && cd build
 cmake ..

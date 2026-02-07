@@ -9,9 +9,8 @@
 #include "wise-io/stream.hpp"
 
 
-
 using str = std::string;
-#include <iostream>
+
 namespace wiseio {
 
 
@@ -46,12 +45,12 @@ bool NumChunk::IsInitialized() {
 }
 
 
-size_t NumChunk::GetOffset() {
+uint64_t NumChunk::GetOffset() {
     return offset_;
 }
 
 
-size_t NumChunk::GetSize() {
+uint64_t NumChunk::GetSize() {
     return static_cast<size_t>(size_);
 }
 

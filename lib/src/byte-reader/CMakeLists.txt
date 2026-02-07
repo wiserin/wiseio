@@ -6,3 +6,5 @@ target_sources(WiseIO PRIVATE ${WISEIO_BYTE_READER_SRC})
 
 add_subdirectory(chunks)
 add_subdirectory(file)
+add_subdirectory(views)
+

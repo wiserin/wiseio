@@ -10,7 +10,6 @@
 #include <wise-io/schemas.hpp>
 #include <wise-io/stream.hpp>
 
-
 using str = std::string;
 
 template<typename T>

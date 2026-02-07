@@ -29,11 +29,6 @@ class NumView {
 };
 
 
-NumView::NumView(std::vector<uint8_t>& data, Endianess endianess)
-        : data_(data)
-        , endianess_(endianess) {}
-
-
 template <typename T>
 T NumView::GetNum() {
     return FromVector<T>(data_, endianess_);

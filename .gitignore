@@ -5,3 +5,5 @@ test*.txt
 out.txt
 temp/
 bin/
+test_23.bin
+test.bin

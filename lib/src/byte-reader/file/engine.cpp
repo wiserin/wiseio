@@ -19,7 +19,7 @@ namespace wiseio {
 ByteFileEngine::ByteFileEngine(const char* file_name)
         : file_name_(file_name)
         , istream_(wiseio::CreateStream(
-            file_name, OpenMode::kRead)) {}
+            file_name, OpenMode::kReadAndWrite)) {}
 
 
 void ByteFileEngine::InitChunks(const std::vector<std::unique_ptr<BaseChunk>>& chunks) {

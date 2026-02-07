@@ -38,12 +38,12 @@ bool ValidateChunk::IsInitialized() {
 }
 
 
-size_t ValidateChunk::GetOffset() {
+uint64_t ValidateChunk::GetOffset() {
 
 }
 
 
-size_t ValidateChunk::GetSize() {
+uint64_t ValidateChunk::GetSize() {
 
 }
 

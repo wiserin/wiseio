@@ -24,8 +24,8 @@ std::unique_ptr<BaseChunk> MakeNumChunk(NumSize size) {
 }
 
 
-std::unique_ptr<BaseChunk> MakeValidateChunk(uint64_t size) {
-    std::unique_ptr<BaseChunk> chunk = std::make_unique<ValidateChunk>(size);
+std::unique_ptr<BaseChunk> MakeValidateChunk(uint64_t size, std::vector<uint8_t>&& target_value) {
+    std::unique_ptr<BaseChunk> chunk = std::make_unique<ValidateChunk>(size, std::move(target_value));
     return chunk;
 }
 

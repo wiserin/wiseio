@@ -74,12 +74,15 @@ class ByteChunk : public BaseChunk {
 
 class ValidateChunk : public BaseChunk {
     ChunkInitState state_ = ChunkInitState::kUninitialized;
-    Storage data;
+    std::vector<uint8_t> target_value_;
+    Storage data_;
     uint64_t size_ = 0;
     uint64_t offset_ = 0;
 
+    bool Validate(const std::vector<uint8_t>& data) const;
+
  public:
-    ValidateChunk(size_t size);
+    ValidateChunk(size_t size, std::vector<uint8_t>&& target_value);
     void Init(Stream& stream) override;
     void Load(Stream& stream) override;
     std::vector<uint8_t> GetCompiledChunk() override;
@@ -94,6 +97,6 @@ class ValidateChunk : public BaseChunk {
 
 std::unique_ptr<BaseChunk> MakeNumChunk(NumSize size);
 std::unique_ptr<BaseChunk> MakeByteChunk(NumSize len_num_size, Endianess num_endianess = Endianess::kLittleEndian);
-std::unique_ptr<BaseChunk> MakeValidateChunk(uint64_t size);
+std::unique_ptr<BaseChunk> MakeValidateChunk(uint64_t size, std::vector<uint8_t>&& target_value);
 
 } // namespace wiseio

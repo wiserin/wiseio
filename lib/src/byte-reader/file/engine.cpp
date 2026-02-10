@@ -1,6 +1,7 @@
 #include <cstddef>  // Copyright 2025 wiserin
 #include <cstdint>
 #include <sys/types.h>
+#include <type_traits>
 #include <vector>
 #include <string>
 
@@ -9,6 +10,7 @@
 #include "wise-io/schemas.hpp"
 #include "wise-io/stream.hpp"
 #include "wise-io/byte/bytefile.hpp"
+#include "wise-io/utils.hpp"
 
 
 using str = std::string;
@@ -36,7 +38,7 @@ void ByteFileEngine::ReadChunk(BaseChunk& chunk) {
 
 
 void ByteFileEngine::CompileFile(const std::vector<std::unique_ptr<BaseChunk>>& chunks) {
-    Stream ostream = CreateStream("test_ooo.bin", OpenMode::kAppend);
+    Stream ostream = CreateStream(file_name_.root_path() / FileNamer::GetName(), OpenMode::kAppend);
     for (int i = 0; i < chunks.size(); ++i) {
         BaseChunk& chunk = *chunks[i];
 
@@ -49,6 +51,9 @@ void ByteFileEngine::CompileFile(const std::vector<std::unique_ptr<BaseChunk>>& 
             ostream.AWrite(data);
         }
     }
+    istream_.SetDelete();
+    istream_.Close();
+    ostream.Rename(file_name_.filename());
 }
 
 

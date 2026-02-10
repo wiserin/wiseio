@@ -28,8 +28,6 @@ class Stream {
 
     void FdCheck() const;
 
-    void SetDelete() const;
-
     Stream(OpenMode mode, const char* file_name);
 
  public:
@@ -64,10 +62,12 @@ class Stream {
 
     size_t GetCursor();
     size_t GetFileSize() const;
+    void SetDelete() const;
 
     bool IsEOF() const;
     bool IsOpen() const;
 
+    void Rename(str&& new_name);
     void Close();
 
     friend Stream CreateStream(const char* name, OpenMode mode, bool is_temp);

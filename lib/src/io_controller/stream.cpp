@@ -1,4 +1,5 @@
 #include <cstddef>  // Copyright 2025 wiserin
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -94,6 +95,10 @@ void Stream::FdCheck() const {
         logger_.Critical("Обращение к файлу через закрытый fd");
         throw std::runtime_error("fd error");
     }
+}
+
+void Stream::Rename(str&& new_name) {
+    std::filesystem::rename(file_path_, file_path_.parent_path() / new_name);
 }
 
 

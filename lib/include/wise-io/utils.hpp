@@ -48,4 +48,13 @@ std::vector<uint8_t> ToVector(T num, wiseio::Endianess target_endian) {
     return data;
 }
 
+
+class FileNamer {
+    inline static uint64_t current = 0;
+
+ public:
+    static str GetName();
+};
+
+
 } // namespace wiseio

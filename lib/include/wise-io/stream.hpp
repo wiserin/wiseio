@@ -3,13 +3,14 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include "logging/logger.hpp"
 #include "wise-io/schemas.hpp"
 
+
 using stat_t = struct stat;
 using str = std::string;
-
 
 namespace wiseio {
 
@@ -19,16 +20,17 @@ class Stream {
     int fd_ = -1;
     bool is_eof_ = false;
     OpenMode mode_;
-
     size_t cursor_ = 0;
-
+    std::filesystem::path file_path_;
     logging::Logger logger_;
 
-    bool Open(const char* path);
+    bool Open();
 
     void FdCheck() const;
 
-    Stream(OpenMode mode);
+    void SetDelete() const;
+
+    Stream(OpenMode mode, const char* file_name);
 
  public:
     Stream() = default;
@@ -61,19 +63,22 @@ class Stream {
     void SetCursor(size_t position);
 
     size_t GetCursor();
+    size_t GetFileSize() const;
 
     bool IsEOF() const;
-    size_t GetFileSize() const;
+    bool IsOpen() const;
 
     void Close();
 
-    friend Stream CreateStream(const char* name, OpenMode mode);
+    friend Stream CreateStream(const char* name, OpenMode mode, bool is_temp);
+    friend Stream CreateStream(const std::filesystem::path& name, OpenMode mode, bool is_temp);
 
     ~Stream();
 };
 
 
-Stream CreateStream(const char* name, OpenMode mode);
+Stream CreateStream(const char* name, OpenMode mode, bool is_temp = false);
+Stream CreateStream(const std::filesystem::path& name, OpenMode mode, bool is_temp = false);
 
 
 } // namespace wiseio

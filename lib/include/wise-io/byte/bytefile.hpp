@@ -1,5 +1,6 @@
 #pragma once  // Copyright 2025 wiserin
 #include <cstddef>
+#include <filesystem>
 #include <string>
 #include <unordered_map>
 
@@ -15,7 +16,7 @@ namespace wiseio {
 
 class ByteFileEngine {
     wiseio::Stream istream_;
-    const char* file_name_;
+    std::filesystem::path file_name_;
 
  public:
     ByteFileEngine(const char* file_name);

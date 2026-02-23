@@ -1,9 +1,9 @@
 #pragma once  // Copyright 2025 wiserin
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 #include "logging/logger.hpp"
 #include "wise-io/schemas.hpp"
@@ -19,7 +19,7 @@ class IOBuffer;
 class Stream {
     int fd_ = -1;
     bool is_eof_ = false;
-    OpenMode mode_;
+    OpenMode mode_ = OpenMode::kDefault;
     size_t cursor_ = 0;
     std::filesystem::path file_path_;
     logging::Logger logger_;
@@ -32,8 +32,8 @@ class Stream {
 
  public:
     Stream() = default;
-    Stream(Stream&& stream);
-    Stream& operator=(Stream&& stream);
+    Stream(Stream&& another) noexcept;
+    Stream& operator=(Stream&& another) noexcept;
 
     Stream(Stream& stream) = delete;
     Stream& operator=(Stream& stream) = delete;
@@ -54,18 +54,18 @@ class Stream {
     bool CWrite(const std::vector<uint8_t>& buffer);
     bool CWrite(const IOBuffer& buffer);
     bool CWrite(const str& buffer);
-    bool CustomWrite(const std::vector<uint8_t>& buffer, size_t offset) const;
-    bool CustomWrite(const IOBuffer& buffer, size_t offset) const;
-    bool CustomWrite(const str& buffer, size_t offset) const;
+    bool CustomWrite(const std::vector<uint8_t>& buffer, size_t offset) const;  // NOLINT(modernize-use-nodiscard)
+    bool CustomWrite(const IOBuffer& buffer, size_t offset) const;  // NOLINT(modernize-use-nodiscard)
+    bool CustomWrite(const str& buffer, size_t offset) const;  // NOLINT(modernize-use-nodiscard)
 
     void SetCursor(size_t position);
 
-    size_t GetCursor();
-    size_t GetFileSize() const;
+    [[nodiscard]] size_t GetCursor() const;
+    [[nodiscard]] size_t GetFileSize() const;
     void SetDelete() const;
 
-    bool IsEOF() const;
-    bool IsOpen() const;
+    [[nodiscard]] bool IsEOF() const;
+    [[nodiscard]] bool IsOpen() const;
 
     void Rename(str&& new_name);
     void Close();
@@ -77,8 +77,8 @@ class Stream {
 };
 
 
-Stream CreateStream(const char* name, OpenMode mode, bool is_temp = false);
-Stream CreateStream(const std::filesystem::path& name, OpenMode mode, bool is_temp = false);
+[[nodiscard]] Stream CreateStream(const char* name, OpenMode mode, bool is_temp = false);
+[[nodiscard]] Stream CreateStream(const std::filesystem::path& name, OpenMode mode, bool is_temp = false);
 
 
 } // namespace wiseio

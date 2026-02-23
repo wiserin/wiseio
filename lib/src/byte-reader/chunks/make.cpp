@@ -1,7 +1,7 @@
 #include <cstddef>  // Copyright 2025 wiserin
 #include <memory>
-#include <sys/types.h>
 #include <string>
+#include <sys/types.h>
 
 #include "wise-io/byte/chunks.hpp"
 #include "wise-io/schemas.hpp"

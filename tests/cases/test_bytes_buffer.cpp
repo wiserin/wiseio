@@ -1,4 +1,4 @@
-// tests/test_bytes_buffer.cpp
+// NOLINTBEGIN
 #include <gtest/gtest.h>
 #include <vector>
 #include <cstdint>
@@ -245,7 +245,6 @@ TEST_F(BytesBufferTest, ReadFromBuffer_UpdatesCursor) {
     
     buffer_.ReadFromBuffer(3);
     
-    // Курсор должен переместиться на 3 позиции
     auto result = buffer_.ReadFromBuffer(1);
     EXPECT_EQ(result[0], 4);
 }
@@ -273,7 +272,6 @@ TEST_F(BytesBufferTest, Clear_ResetsCursor) {
     
     buffer_.Clear();
     
-    // Курсор должен быть сброшен на 0
     EXPECT_NO_THROW(buffer_.SetCursor(0));
 }
 
@@ -304,20 +302,16 @@ TEST_F(BytesBufferTest, Clear_MultipleTimes) {
 // ==================== Комбинированные тесты ====================
 
 TEST_F(BytesBufferTest, Combined_AddReadClear) {
-    // Добавляем данные
     std::vector<uint8_t> data1 = {1, 2, 3, 4, 5};
     buffer_.AddDataToBuffer(data1);
     
-    // Читаем часть
     buffer_.SetCursor(0);
     auto result1 = buffer_.ReadFromBuffer(3);
     EXPECT_EQ(result1.size(), 3);
     
-    // Очищаем
     buffer_.Clear();
     EXPECT_EQ(buffer_.GetBufferSize(), 0);
     
-    // Добавляем новые данные
     std::vector<uint8_t> data2 = {10, 20, 30};
     buffer_.AddDataToBuffer(data2);
     EXPECT_EQ(buffer_.GetBufferSize(), 3);
@@ -329,20 +323,16 @@ TEST_F(BytesBufferTest, Combined_ResizeAndAdd) {
     std::vector<uint8_t> data = {1, 2, 3};
     buffer_.AddDataToBuffer(data);
     
-    // Размер должен быть 10 + 3 = 13
     EXPECT_EQ(buffer_.GetBufferSize(), 13);
 }
 
 TEST_F(BytesBufferTest, EdgeCase_MaxCursor) {
     buffer_.ResizeBuffer(100);
     
-    // Устанавливаем курсор в конец
     EXPECT_NO_THROW(buffer_.SetCursor(100));
     
-    // IsData должен вернуть false
     EXPECT_FALSE(buffer_.IsData());
     
-    // ReadFromBuffer должен вернуть пустой вектор
     auto result = buffer_.ReadFromBuffer(10);
     EXPECT_EQ(result.size(), 0);
 }
@@ -361,3 +351,6 @@ TEST_F(BytesBufferTest, StressTest_ManyOperations) {
         EXPECT_EQ(result[0], static_cast<uint8_t>(i % 256));
     }
 }
+
+// NOLINTEND
+

@@ -3,20 +3,19 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
-#include <errno.h>
 
 #include <core.h>
 
 #include "wise-io/stream.hpp"
-#include "wise-io/schemas.hpp"
 #include "logging/logger.hpp"
+#include "wise-io/schemas.hpp"
 
 
 namespace wiseio {
 
-class segmentation_fault : public std::exception {
+class segmentation_fault : public std::exception { //NOLINT
 public:
-    const char* what() const noexcept override {
+    [[nodiscard]] const char* what() const noexcept override {
         return "Segmentation fault (core dumped)";
     }
 };
@@ -29,7 +28,7 @@ Stream::Stream(
     , file_path_(file_name) {}
 
 
-Stream::Stream(Stream&& another)
+Stream::Stream(Stream&& another) noexcept
         : fd_(another.fd_)
         , is_eof_(another.is_eof_)
         , mode_(another.mode_)
@@ -41,7 +40,7 @@ Stream::Stream(Stream&& another)
 }
 
 
-Stream& Stream::operator=(Stream&& another) {
+Stream& Stream::operator=(Stream&& another) noexcept {
     if (IsOpen() && fd_ != another.fd_) {
         Close();
     }
@@ -75,7 +74,7 @@ void Stream::SetDelete() const {
 }
 
 
-size_t Stream::GetCursor() {
+size_t Stream::GetCursor() const {
     return cursor_;
 }
 
@@ -98,12 +97,13 @@ void Stream::FdCheck() const {
 }
 
 void Stream::Rename(str&& new_name) {
-    std::filesystem::rename(file_path_, file_path_.parent_path() / new_name);
+    std::filesystem::rename(file_path_, file_path_.parent_path() / std::move(new_name));
 }
 
 
 void Stream::Close() {
     wcore_close(fd_);
+    fd_ = -1;
 }
 
 
@@ -130,6 +130,8 @@ bool Stream::Open() {
         case (OpenMode::kReadAndWrite) : {
             fd_ = wcore_read_and_write(file_path_.c_str());
             break;
+        } case (OpenMode::kDefault) : {
+            logger_.Error("Не задан режим открытия");
         }
     }
 
@@ -137,11 +139,11 @@ bool Stream::Open() {
         logger_.Debug("Файл открыт в режиме " + std::to_string(
             static_cast<int>(mode_)));
         return true;
-    } else {
-        logger_.Error("Ошибка при открытии файла. FD: " + std::to_string(
-            fd_) + " Errno: " + std::to_string(errno));
-        return false;
-    }
+    } 
+
+    logger_.Error("Ошибка при открытии файла. FD: " + std::to_string(
+        fd_) + " Errno: " + std::to_string(errno));
+    return false;
 }
 
 

@@ -1,8 +1,8 @@
 #include <cstddef>  // Copyright 2025 wiserin
 #include <cstdint>
 #include <stdexcept>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "wise-io/byte/chunks.hpp"
 #include "wise-io/schemas.hpp"

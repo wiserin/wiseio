@@ -2,8 +2,48 @@ Checks: >
   bugprone-*,
   performance-*,
   readability-*,
-  modernize-*,
   cppcoreguidelines-*,
-  clang-analyzer-*
+  clang-analyzer-*,
+  modernize-*,
+  llvm-include-order,
+  cppcoreguidelines-noexcept-move-operations,
+  -modernize-use-trailing-return-type,
 
 WarningsAsErrors: '*'
+
+CheckOptions:
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: _
+
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: lower_case
+
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+
+  - key: readability-identifier-naming.FunctionCase
+    value: CamelCase
+
+  - key: readability-identifier-naming.MethodCase
+    value: CamelCase
+
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+
+  - key: readability-identifier-naming.ConstantCase
+    value: kCamelCase
+
+  - key: readability-identifier-naming.EnumCase
+    value: kCamelCase
+
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+
+  - key: readability-namespace-comments.ShortNamespaceLines
+    value: 1

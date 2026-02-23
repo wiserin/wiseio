@@ -1,4 +1,4 @@
-// tests/test_string_buffer.cpp
+// NOLINTBEGIN
 #include <gtest/gtest.h>
 #include <string>
 #include <stdexcept>
@@ -72,7 +72,6 @@ TEST_F(StringBufferTest, GetLen_WithData_UTF8) {
     buffer_.SetEncoding(wiseio::Encoding::kUTF_8);
     buffer_.AddDataToBuffer("Hello");
     
-    // UTF-8: 1 байт на символ для ASCII
     EXPECT_EQ(buffer_.GetLen(), 5);
 }
 
@@ -80,9 +79,6 @@ TEST_F(StringBufferTest, GetLen_WithData_UTF16) {
     buffer_.SetEncoding(wiseio::Encoding::kUTF_16);
     buffer_.AddDataToBuffer("Hello");
     
-    // UTF-16: 2 байта на символ
-    // "Hello" = 5 символов * 1 байт = 5 байт
-    // GetLen = 5 / 2 = 2
     EXPECT_EQ(buffer_.GetLen(), 2);
 }
 
@@ -202,7 +198,6 @@ TEST_F(StringBufferTest, IgnoreComments_Disabled_Default) {
     std::string line1 = buffer_.GetLine();
     std::string line2 = buffer_.GetLine();
     
-    // По умолчанию комментарии не игнорируются
     EXPECT_FALSE(line1.empty());
 }
 
@@ -223,7 +218,6 @@ TEST_F(StringBufferTest, IgnoreComments_InlineComment) {
     
     std::string line = buffer_.GetLine();
     
-    // Строка должна обрезаться до комментария
     EXPECT_EQ(line, "Code here ");
 }
 
@@ -234,7 +228,6 @@ TEST_F(StringBufferTest, IgnoreComments_NoSpaceBeforeHash) {
     
     std::string line = buffer_.GetLine();
     
-    // # не в начале и без пробела перед ним - не комментарий
     EXPECT_EQ(line, "No#Comment");
 }
 
@@ -259,12 +252,8 @@ TEST_F(StringBufferTest, IgnoreBlank_Disabled) {
     std::string line3 = buffer_.GetLine();
     
     EXPECT_EQ(line1, "Line1");
-    // line2 должна быть пустой
     EXPECT_EQ(line3, "Line2");
 }
-
-// Хм, у нас нет метода SetIgnoreBlank в интерфейсе, но он упоминается в приватных полях
-// Пропустим эти тесты, так как API не предоставлен
 
 // ==================== Clear ====================
 
@@ -324,9 +313,7 @@ TEST_F(StringBufferTest, Combined_MultilineWithComments) {
 TEST_F(StringBufferTest, Combined_UTF16Encoding) {
     buffer_.SetEncoding(wiseio::Encoding::kUTF_16);
     buffer_.AddDataToBuffer("Test");
-    
-    // 4 символа = 4 байта в UTF-8
-    // В UTF-16: 4/2 = 2 "символа"
+
     EXPECT_EQ(buffer_.GetLen(), 2);
 }
 
@@ -367,7 +354,7 @@ TEST_F(StringBufferTest, EdgeCase_OnlyNewlines) {
     while (buffer_.IsLines()) {
         buffer_.GetLine();
         ++count;
-        if (count > 10) break; // Защита от бесконечного цикла
+        if (count > 10) break;
     }
     
     EXPECT_GT(count, 0);
@@ -411,6 +398,7 @@ TEST_F(StringBufferTest, SpecialChars_CarriageReturn) {
     
     std::string line1 = buffer_.GetLine();
     
-    // \r\n - Windows-style line ending
     EXPECT_FALSE(line1.empty());
 }
+
+// NOLINTEND

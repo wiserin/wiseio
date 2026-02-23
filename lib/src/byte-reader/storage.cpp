@@ -2,9 +2,9 @@
 #include <cstdint>
 #include <filesystem>
 #include <stdexcept>
+#include <string>
 #include <sys/types.h>
 #include <vector>
-#include <string>
 
 #include "wise-io/byte/storage.hpp"
 #include "wise-io/schemas.hpp"

@@ -1,15 +1,15 @@
 #include <cstddef>  // Copyright 2025 wiserin
 #include <cstdint>
-#include <sys/types.h>
-#include <type_traits>
-#include <vector>
+#include <memory>
 #include <string>
+#include <sys/types.h>
+#include <vector>
 
 #include "wise-io/byte/chunks.hpp"
+#include "wise-io/byte/bytefile.hpp"
 #include "wise-io/byte/storage.hpp"
 #include "wise-io/schemas.hpp"
 #include "wise-io/stream.hpp"
-#include "wise-io/byte/bytefile.hpp"
 #include "wise-io/utils.hpp"
 
 
@@ -25,9 +25,8 @@ ByteFileEngine::ByteFileEngine(const char* file_name)
 
 
 void ByteFileEngine::InitChunks(const std::vector<std::unique_ptr<BaseChunk>>& chunks) {
-    for (int i = 0; i < chunks.size(); ++i) {
-        BaseChunk& chunk = *chunks[i];
-        chunk.Init(istream_);
+    for (const std::unique_ptr<BaseChunk>& chunk : chunks) {
+        chunk->Init(istream_);
     }
 }
 
@@ -39,15 +38,14 @@ void ByteFileEngine::ReadChunk(BaseChunk& chunk) {
 
 void ByteFileEngine::CompileFile(const std::vector<std::unique_ptr<BaseChunk>>& chunks) {
     Stream ostream = CreateStream(file_name_.root_path() / FileNamer::GetName(), OpenMode::kAppend);
-    for (int i = 0; i < chunks.size(); ++i) {
-        BaseChunk& chunk = *chunks[i];
 
-        if (chunk.GetStorage().IsChanged()) {
-            std::vector<uint8_t> data = chunk.GetCompiledChunk();
+    for (const std::unique_ptr<BaseChunk>& chunk : chunks) {
+        if (chunk->GetStorage().IsChanged()) {
+            std::vector<uint8_t> data = chunk->GetCompiledChunk();
             ostream.AWrite(data);
-        } else if (chunk.IsInitialized()) {
-            ReadChunk(chunk);
-            std::vector<uint8_t> data = chunk.GetCompiledChunk();
+        } else if (chunk->IsInitialized()) {
+            ReadChunk(*chunk);
+            std::vector<uint8_t> data = chunk->GetCompiledChunk();
             ostream.AWrite(data);
         }
     }

@@ -1,5 +1,5 @@
-#include <cstddef>
-#include <sys/stat.h> // Copyright 2025 wiserin
+#include <cstddef>  // Copyright 2025 wiserin
+#include <sys/stat.h>
 
 #include <core.h>
 

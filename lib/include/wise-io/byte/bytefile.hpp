@@ -5,8 +5,8 @@
 #include <unordered_map>
 
 #include "wise-io/byte/chunks.hpp"
-#include "wise-io/stream.hpp"
 #include "wise-io/concepts.hpp"
+#include "wise-io/stream.hpp"
 
 
 using str = std::string;
@@ -22,8 +22,8 @@ class ByteFileEngine {
     ByteFileEngine() = default;
     ByteFileEngine(const ByteFileEngine& another) = delete;
     ByteFileEngine& operator=(const ByteFileEngine& another) = delete;
-    ByteFileEngine(ByteFileEngine&& another) = default;
-    ByteFileEngine& operator=(ByteFileEngine&& another) = default;
+    ByteFileEngine(ByteFileEngine&& another) noexcept = default;
+    ByteFileEngine& operator=(ByteFileEngine&& another) noexcept = default;
 
     ByteFileEngine(const char* file_name);
     void InitChunks(const std::vector<std::unique_ptr<BaseChunk>>& chunks);
@@ -40,12 +40,12 @@ class ByteFile {
     std::unordered_map<T, BaseChunk*> index_;
     ByteFileEngine file_engine_;
 
-    bool IsNameInIndex(const T& name);
+    auto IsNameInIndex(const T& name) -> bool;
 
 public:
     ByteFile() = default;
     ByteFile(const ByteFile<T>& another) = delete;
-    ByteFile<T>& operator=(const ByteFile<T> another) = delete;
+    ByteFile<T>& operator=(const ByteFile<T>& another) = delete;
     ByteFile(ByteFile<T>&& another) = default;
     ByteFile<T>& operator=(ByteFile<T>&& another) = default;
 

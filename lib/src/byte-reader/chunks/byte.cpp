@@ -2,10 +2,10 @@
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
-#include <string>
 
 #include "wise-io/byte/chunks.hpp"
 #include "wise-io/byte/storage.hpp"
@@ -52,7 +52,7 @@ std::vector<uint8_t> ByteChunk::GetCompiledChunk() {
     std::vector<uint8_t> num = GetSizeVector();
     std::memcpy(compiled.data(), num.data(), num.size());
     std::vector<uint8_t>& data = data_.GetData();
-    std::memcpy(compiled.data() + num.size(), data.data(), data.size());
+    std::memcpy(compiled.data() + num.size(), data.data(), data.size());  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     return compiled;
 }
 

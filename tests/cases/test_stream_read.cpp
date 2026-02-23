@@ -1,4 +1,4 @@
-// tests/test_stream_read.cpp
+// NOLINTBEGIN
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <fstream>
@@ -307,3 +307,5 @@ TEST_F(StreamReadTest, MultipleSetCursor_Reads) {
     stream.CRead(buf2);
     EXPECT_EQ(std::string(buf2.begin(), buf2.end()), "HI");
 }
+
+// NOLINTEND

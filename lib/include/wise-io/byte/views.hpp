@@ -1,8 +1,8 @@
 #pragma once  // Copyright 2025 wiserin
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <wise-io/schemas.hpp>
 #include <wise-io/stream.hpp>
@@ -14,15 +14,15 @@ using str = std::string;
 
 namespace wiseio {
 
-class NumView {
-    std::vector<uint8_t>& data_;
+class NumView {  // TODO Переписать на weak
+    std::vector<uint8_t>& data_;  // NOLINT
     Endianess endianess_;
 
  public:
     NumView(std::vector<uint8_t>& data, Endianess endianess = Endianess::kLittleEndian);
 
     template<typename T>
-    T GetNum();
+    [[nodiscard]] T GetNum();
 
     template<typename T>
     void SetNum(T num);

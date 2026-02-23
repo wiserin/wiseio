@@ -1,4 +1,4 @@
-// tests/test_stream_write.cpp
+// NOLINTBEGIN
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <fstream>
@@ -189,7 +189,6 @@ TEST_F(StreamWriteTest, AWrite_Vector_NewFile) {
 TEST_F(StreamWriteTest, AWrite_Vector_ExistingFile) {
     auto path = (test_dir_ / "append_existing.txt").string();
     
-    // Создаём файл с начальным содержимым
     {
         std::ofstream file(path);
         file << "Initial";
@@ -255,7 +254,6 @@ TEST_F(StreamWriteTest, AWrite_WrongMode_Fails) {
 TEST_F(StreamWriteTest, CustomWrite_Vector_WithOffset) {
     auto path = (test_dir_ / "custom_write.txt").string();
     
-    // Создаём файл с начальным содержимым
     {
         std::ofstream file(path);
         file << "0123456789";
@@ -292,7 +290,6 @@ TEST_F(StreamWriteTest, CustomWrite_Vector_OffsetBeyondEnd) {
     std::vector<uint8_t> data = {'X', 'Y'};
     stream.CustomWrite(data, 10);
     
-    // Файл должен быть расширен с нулями между концом и новыми данными
     auto content = ReadFileBinary(path);
     EXPECT_GE(content.size(), 12);
 }
@@ -379,11 +376,9 @@ TEST_F(StreamWriteTest, ReadAndWrite_Mode_WriteAfterRead) {
     
     auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kReadAndWrite);
     
-    // Читаем первые 5 байт
     std::vector<uint8_t> read_buf(5);
     stream.CRead(read_buf);
     
-    // Записываем поверх следующих
     std::vector<uint8_t> write_data = {'X', 'Y', 'Z'};
     stream.CWrite(write_data);
     
@@ -408,3 +403,5 @@ TEST_F(StreamWriteTest, SetCursor_ThenWrite) {
     
     EXPECT_EQ(ReadFileContent(path), "000ABC0000");
 }
+
+// NOLINTEND

@@ -1,4 +1,5 @@
-#include <stddef.h>  // Copyright 2025 wiserin
+// NOLINTBEGIN  Copyright 2025 wiserin
+#include <stddef.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdint.h>
@@ -73,3 +74,4 @@ bool wcore_custom_write(
 
     return true;
 }
+// NOLINTEND

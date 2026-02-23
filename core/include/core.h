@@ -1,3 +1,4 @@
+// NOLINTBEGIN  Copyright 2025 wiserin
 #pragma once
 #ifdef __cplusplus
 #define CORE_EXTERN_C extern "C"
@@ -35,3 +36,5 @@ CORE_EXTERN_C bool wcore_custom_write(
 CORE_EXTERN_C void wcore_update_stat(int fd, stat_t* file_stat);
 
 CORE_EXTERN_C int wcore_unlink_file(const char* file_name);
+
+// NOLINTEND

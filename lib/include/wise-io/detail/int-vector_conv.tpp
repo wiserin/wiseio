@@ -1,6 +1,7 @@
 #pragma once  // Copyright 2025 wiserin
 #include <bit>
 #include <cstdint>
+#include <cstring>
 #include <vector>
 #include <string>
 

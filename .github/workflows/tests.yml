@@ -9,6 +9,50 @@ on:
      - main
 
 jobs:
+  lint:
+    name: Lint (clang-tidy + warnings)
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake clang clang-tidy clang-format
+
+    - name: Configure (export compile commands)
+      run: |
+        cmake -S . -B build \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Werror"
+
+    - name: Run clang-tidy
+      run: |
+        FILES=$(find . -name '*.cpp' -o -name '*.hpp' -o -name '*.h')
+        clang-tidy $FILES \
+          -p build \
+          --warnings-as-errors='*'
+
+    - name: Check formatting
+      run: |
+        FILES=$(find . -name '*.cpp' -o -name '*.hpp' -o -name '*.h')
+        clang-format --dry-run --Werror $FILES
+
+    - name: Lint summary
+      if: always()
+      run: |
+        STATUS="❌ Failed"
+        [ "${{ job.status }}" = "success" ] && STATUS="✅ Passed"
+
+        {
+          echo "## 🔎 Lint"
+          echo ""
+          echo "- Status: **$STATUS**"
+          echo "- Checks: clang-tidy + clang-format + -Werror"
+        } >> $GITHUB_STEP_SUMMARY
+
   test:
     name: Unit tests
     runs-on: ubuntu-latest

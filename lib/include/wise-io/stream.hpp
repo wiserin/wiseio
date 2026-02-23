@@ -20,7 +20,7 @@ class Stream {
     int fd_ = -1;
     bool is_eof_ = false;
     OpenMode mode_ = OpenMode::kDefault;
-    size_t cursor_ = 0;
+    size_t cursor_ = 0;  // TODO переписать на uint64_t
     std::filesystem::path file_path_;
     logging::Logger logger_;
 

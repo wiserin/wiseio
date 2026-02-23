@@ -44,7 +44,7 @@ void ByteFileEngine::CompileFile(const std::vector<std::unique_ptr<BaseChunk>>& 
             std::vector<uint8_t> data = chunk->GetCompiledChunk();
             ostream.AWrite(data);
         } else if (chunk->IsInitialized()) {
-            ReadChunk(*chunk);
+            ReadChunk(*chunk); // TODO оптимизировать количество копирований
             std::vector<uint8_t> data = chunk->GetCompiledChunk();
             ostream.AWrite(data);
         }

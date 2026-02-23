@@ -36,7 +36,7 @@ bool Storage::IsChanged() {
 
 void Storage::SetCacheDir(str&& path) {
     if (!std::filesystem::is_directory(path)) {
-        throw std::runtime_error("Unknown dir");
+        throw std::runtime_error("Неизвестная дирректория");
     }
     cache_dir = std::move(path);
 }

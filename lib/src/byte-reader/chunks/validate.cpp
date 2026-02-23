@@ -21,12 +21,11 @@ ValidateChunk::ValidateChunk(
 
 
 void ValidateChunk::Init(wiseio::Stream& stream) {
-    std::vector<uint8_t> chunk;
-    chunk.resize(size_);
+    std::vector<uint8_t> chunk(size_);
     offset_ = stream.GetCursor();
     stream.CRead(chunk);
     if (!Validate(chunk)) {
-        throw std::logic_error("Validate chunk: the data doesn't match");
+        throw std::logic_error("Данные не совпадают");
     }
     state_ = ChunkInitState::kFileBacked;
 }

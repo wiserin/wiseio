@@ -24,8 +24,7 @@ ByteChunk::ByteChunk(NumSize size, Endianess num_endianess)
 
 
 void ByteChunk::Init(wiseio::Stream& stream) {
-    std::vector<uint8_t> num;
-    num.resize(static_cast<int>(len_num_size_));
+    std::vector<uint8_t> num(static_cast<int>(len_num_size_));
     stream.CRead(num);
     offset_ = stream.GetCursor();
     NumView view(num, num_endianess_);
@@ -46,9 +45,7 @@ void ByteChunk::Load(Stream& stream) {
 
 
 std::vector<uint8_t> ByteChunk::GetCompiledChunk() {
-    std::vector<uint8_t> compiled;
-    size_ = data_.GetData().size();
-    compiled.resize(static_cast<int>(len_num_size_) + size_);
+    std::vector<uint8_t> compiled(static_cast<int>(len_num_size_) + data_.GetData().size());
     std::vector<uint8_t> num = GetSizeVector();
     std::memcpy(compiled.data(), num.data(), num.size());
     std::vector<uint8_t>& data = data_.GetData();

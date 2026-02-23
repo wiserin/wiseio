@@ -3,7 +3,8 @@ set(WISEIO_CORE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/close.c
     ${CMAKE_CURRENT_SOURCE_DIR}/read.c
     ${CMAKE_CURRENT_SOURCE_DIR}/write.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils.c)
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/file_utils.c)
 
 
 target_sources(WiseIOCore PRIVATE ${WISEIO_CORE_SRC})

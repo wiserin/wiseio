@@ -1,12 +1,12 @@
 #include <cstdint>  // Copyright 2025 wiserin
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <core.h>
 
 #include "wise-io/stream.hpp"
-#include "wise-io/schemas.hpp"
 #include "wise-io/buffer.hpp"
+#include "wise-io/schemas.hpp"
 
 
 using str = std::string;
@@ -42,7 +42,7 @@ bool Stream::CWrite(const str& buffer) {
         return false;
     }
     bool state = wcore_cwrite(
-        fd_, reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size(),
+        fd_, reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size(),  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         &cursor_);
     return state;
 }

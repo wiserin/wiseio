@@ -1,4 +1,5 @@
-#include <stddef.h>  // Copyright 2025 wiserin
+// NOLINTBEGIN  Copyright 2025 wiserin
+#include <stddef.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -29,3 +30,4 @@ int wcore_read_and_write(const char* path) {
 
     return fd;
 }
+// NOLINTEND

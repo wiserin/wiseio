@@ -1,4 +1,4 @@
-// tests/test_integration.cpp
+// NOLINTBEGIN
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <fstream>
@@ -50,7 +50,6 @@ protected:
 TEST_F(IntegrationTest, StreamWithBytesBuffer_ReadWrite) {
     auto path = (test_dir_ / "bytes_rw.bin").string();
     
-    // Записываем через BytesIOBuffer
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kWrite);
         wiseio::BytesIOBuffer buffer;
@@ -61,7 +60,6 @@ TEST_F(IntegrationTest, StreamWithBytesBuffer_ReadWrite) {
         EXPECT_TRUE(stream.CWrite(buffer));
     }
     
-    // Читаем через BytesIOBuffer
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kRead);
         wiseio::BytesIOBuffer buffer;
@@ -81,7 +79,6 @@ TEST_F(IntegrationTest, StreamWithBytesBuffer_ReadWrite) {
 TEST_F(IntegrationTest, StreamWithBytesBuffer_Chunked) {
     auto path = (test_dir_ / "bytes_chunked.bin").string();
     
-    // Записываем по частям
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kWrite);
         
@@ -93,7 +90,6 @@ TEST_F(IntegrationTest, StreamWithBytesBuffer_Chunked) {
         }
     }
     
-    // Читаем по частям
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kRead);
         
@@ -117,7 +113,6 @@ TEST_F(IntegrationTest, StreamWithBytesBuffer_Chunked) {
 TEST_F(IntegrationTest, StreamWithStringBuffer_TextFile) {
     auto path = (test_dir_ / "text_file.txt").string();
     
-    // Записываем текст
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kWrite);
         wiseio::StringIOBuffer buffer;
@@ -126,7 +121,6 @@ TEST_F(IntegrationTest, StreamWithStringBuffer_TextFile) {
         stream.CWrite(buffer);
     }
     
-    // Читаем построчно
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kRead);
         wiseio::StringIOBuffer buffer;
@@ -150,7 +144,6 @@ TEST_F(IntegrationTest, StreamWithStringBuffer_TextFile) {
 TEST_F(IntegrationTest, StreamWithStringBuffer_CommentsFilter) {
     auto path = (test_dir_ / "config.txt").string();
     
-    // Записываем файл с комментариями
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kWrite);
         wiseio::StringIOBuffer buffer;
@@ -166,7 +159,6 @@ TEST_F(IntegrationTest, StreamWithStringBuffer_CommentsFilter) {
         stream.CWrite(buffer);
     }
     
-    // Читаем с фильтрацией комментариев
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kRead);
         wiseio::StringIOBuffer buffer;
@@ -200,7 +192,6 @@ TEST_F(IntegrationTest, FileCopy_SmallFile) {
     auto source = CreateTestFile("source.txt", "Hello, World!");
     auto dest = (test_dir_ / "dest.txt").string();
     
-    // Копируем
     {
         auto read_stream = wiseio::CreateStream(source.c_str(), wiseio::OpenMode::kRead);
         auto write_stream = wiseio::CreateStream(dest.c_str(), wiseio::OpenMode::kWrite);
@@ -218,7 +209,6 @@ TEST_F(IntegrationTest, FileCopy_LargeFile) {
     auto source = CreateTestFile("large_source.bin", content);
     auto dest = (test_dir_ / "large_dest.bin").string();
     
-    // Копируем блоками
     {
         auto read_stream = wiseio::CreateStream(source.c_str(), wiseio::OpenMode::kRead);
         auto write_stream = wiseio::CreateStream(dest.c_str(), wiseio::OpenMode::kWrite);
@@ -240,19 +230,16 @@ TEST_F(IntegrationTest, FileCopy_LargeFile) {
 TEST_F(IntegrationTest, AppendMode_MultipleWrites) {
     auto path = (test_dir_ / "append.log").string();
     
-    // Первая запись
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kAppend);
         stream.AWrite("Entry 1\n");
     }
     
-    // Вторая запись
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kAppend);
         stream.AWrite("Entry 2\n");
     }
     
-    // Третья запись
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kAppend);
         stream.AWrite("Entry 3\n");
@@ -287,16 +274,13 @@ TEST_F(IntegrationTest, ReadAndWrite_ModifyFile) {
     
     auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kReadAndWrite);
     
-    // Читаем первые 5 байт
     std::vector<uint8_t> read_buf(5);
     stream.CRead(read_buf);
     EXPECT_EQ(std::string(read_buf.begin(), read_buf.end()), "01234");
     
-    // Записываем в текущую позицию
     std::vector<uint8_t> write_data = {'X', 'Y', 'Z'};
     stream.CWrite(write_data);
     
-    // Читаем оставшееся
     std::vector<uint8_t> rest(2);
     stream.CRead(rest);
     EXPECT_EQ(std::string(rest.begin(), rest.end()), "89");
@@ -309,14 +293,12 @@ TEST_F(IntegrationTest, ReadAndWrite_ModifyFile) {
 TEST_F(IntegrationTest, ReadAndWrite_RandomAccess) {
     auto path = (test_dir_ / "random.bin").string();
     
-    // Создаём файл
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kWrite);
         std::vector<uint8_t> data(100, 0);
         stream.CWrite(data);
     }
     
-    // Записываем в разные позиции
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kReadAndWrite);
         
@@ -330,7 +312,6 @@ TEST_F(IntegrationTest, ReadAndWrite_RandomAccess) {
         stream.CustomWrite(pattern3, 90);
     }
     
-    // Проверяем чтение из разных позиций
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kRead);
         
@@ -362,7 +343,6 @@ TEST_F(IntegrationTest, ComplexScenario_DataProcessing) {
     
     auto output_path = (test_dir_ / "output.csv").string();
     
-    // Обработка: читаем с фильтрацией, пишем в новый файл
     {
         auto read_stream = wiseio::CreateStream(input_path.c_str(), wiseio::OpenMode::kRead);
         auto write_stream = wiseio::CreateStream(output_path.c_str(), wiseio::OpenMode::kWrite);
@@ -388,7 +368,6 @@ TEST_F(IntegrationTest, ComplexScenario_DataProcessing) {
         write_stream.CWrite(write_buffer);
     }
     
-    // Проверяем результат
     std::string result = ReadFileContent(output_path);
     EXPECT_EQ(result.find("# CSV File"), std::string::npos);
     EXPECT_EQ(result.find("# Comment line"), std::string::npos);
@@ -399,7 +378,6 @@ TEST_F(IntegrationTest, ComplexScenario_DataProcessing) {
 TEST_F(IntegrationTest, ComplexScenario_BinaryProtocol) {
     auto path = (test_dir_ / "protocol.bin").string();
     
-    // Записываем бинарный протокол: [length:4][data:length]
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kWrite);
         
@@ -418,7 +396,6 @@ TEST_F(IntegrationTest, ComplexScenario_BinaryProtocol) {
         stream.CWrite(buffer);
     }
     
-    // Читаем протокол
     {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kRead);
         
@@ -459,7 +436,7 @@ TEST_F(IntegrationTest, StressTest_ManySmallWrites) {
     stream.Close();
     
     size_t file_size = fs::file_size(path);
-    EXPECT_GT(file_size, 6000); // Примерно 1000 * 7 символов минимум
+    EXPECT_GT(file_size, 6000);
 }
 
 TEST_F(IntegrationTest, StressTest_LargeBuffer) {
@@ -469,7 +446,6 @@ TEST_F(IntegrationTest, StressTest_LargeBuffer) {
         auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kWrite);
         wiseio::BytesIOBuffer buffer;
         
-        // Добавляем 10 МБ данных
         for (int i = 0; i < 10000; ++i) {
             std::vector<uint8_t> chunk(1000, i % 256);
             buffer.AddDataToBuffer(chunk);
@@ -481,3 +457,5 @@ TEST_F(IntegrationTest, StressTest_LargeBuffer) {
     size_t file_size = fs::file_size(path);
     EXPECT_EQ(file_size, 10000000);
 }
+
+// NOLINTEND

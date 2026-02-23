@@ -1,4 +1,4 @@
-// tests/test_stream_basic.cpp
+// NOLINTBEGIN
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <fstream>
@@ -84,7 +84,6 @@ TEST_F(StreamBasicTest, MoveConstructor_Success) {
     auto stream1 = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kRead);
     wiseio::Stream stream2(std::move(stream1));
     
-    // stream2 должен быть работоспособен
     EXPECT_FALSE(stream2.IsEOF());
 }
 
@@ -169,8 +168,9 @@ TEST_F(StreamBasicTest, Close_MultipleCalls) {
     auto stream = wiseio::CreateStream(path.c_str(), wiseio::OpenMode::kRead);
     
     stream.Close();
-    // Повторный вызов не должен крашить программу
     EXPECT_NO_THROW({
         stream.Close();
     });
 }
+
+// NOLINTEND

@@ -30,4 +30,6 @@ enable_testing()
 add_subdirectory(lib)
 add_subdirectory(core)
 
+# add_subdirectory(bin)
+
 add_subdirectory(tests)

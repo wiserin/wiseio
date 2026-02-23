@@ -16,10 +16,10 @@ namespace wiseio {
 
 class NumView {  // TODO Переписать на weak
     std::vector<uint8_t>& data_;  // NOLINT
-    Endianess endianess_;
+    Endianness endianess_;
 
  public:
-    NumView(std::vector<uint8_t>& data, Endianess endianess = Endianess::kLittleEndian);
+    NumView(std::vector<uint8_t>& data, Endianness endianess = Endianness::kLittleEndian);
 
     template<typename T>
     [[nodiscard]] T GetNum();

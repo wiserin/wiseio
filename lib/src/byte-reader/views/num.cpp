@@ -9,7 +9,7 @@ using str = std::string;
 namespace wiseio {
 
 
-NumView::NumView(std::vector<uint8_t>& data, Endianess endianess)
+NumView::NumView(std::vector<uint8_t>& data, Endianness endianess)
         : data_(data)
         , endianess_(endianess) {}
 

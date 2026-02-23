@@ -38,7 +38,7 @@ enum class ChunkInitState : uint8_t {
 };
 
 
-enum class Endianess : uint8_t {
+enum class Endianness : uint8_t {
     kLittleEndian = 0,
     kBigEndian
 };

@@ -13,11 +13,11 @@ using str = std::string;
 namespace wiseio {
 
 template<Integral T>
-[[nodiscard]] T FromVector(const std::vector<uint8_t>& data, wiseio::Endianess source_endian);
+[[nodiscard]] T FromVector(const std::vector<uint8_t>& data, wiseio::Endianness source_endian);
 
 
 template<Integral T>
-[[nodiscard]] std::vector<uint8_t> ToVector(T num, wiseio::Endianess target_endian);
+[[nodiscard]] std::vector<uint8_t> ToVector(T num, wiseio::Endianness target_endian);
 
 
 class FileNamer {

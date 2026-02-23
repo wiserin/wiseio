@@ -37,7 +37,7 @@ void ByteFileEngine::ReadChunk(BaseChunk& chunk) {
 
 
 void ByteFileEngine::CompileFile(const std::vector<std::unique_ptr<BaseChunk>>& chunks) {
-    Stream ostream = CreateStream(file_name_.root_path() / FileNamer::GetName(), OpenMode::kAppend);
+    Stream ostream = CreateStream(file_name_.parent_path() / FileNamer::GetName(), OpenMode::kAppend);
 
     for (const std::unique_ptr<BaseChunk>& chunk : chunks) {
         if (chunk->GetStorage().IsChanged()) {

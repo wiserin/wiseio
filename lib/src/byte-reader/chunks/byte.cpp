@@ -18,7 +18,7 @@ using str = std::string;
 
 namespace wiseio {
 
-ByteChunk::ByteChunk(NumSize size, Endianess num_endianess)
+ByteChunk::ByteChunk(NumSize size, Endianness num_endianess)
     : len_num_size_(size)
     , num_endianess_(num_endianess) {}
 

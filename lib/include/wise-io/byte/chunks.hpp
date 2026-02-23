@@ -59,7 +59,7 @@ class NumChunk : public BaseChunk {
 
 class ByteChunk : public BaseChunk {
     ChunkInitState state_ = ChunkInitState::kUninitialized;
-    Endianess num_endianess_;
+    Endianness num_endianess_;
     Storage data_;
     NumSize len_num_size_;
     uint64_t size_ = 0;
@@ -69,7 +69,7 @@ class ByteChunk : public BaseChunk {
     [[nodiscard]] std::vector<uint8_t> GetSizeVector();
 
  public:
-    ByteChunk(NumSize size, Endianess num_endianess);
+    ByteChunk(NumSize size, Endianness num_endianess);
 
     ByteChunk(const ByteChunk& another) = delete;
     ByteChunk& operator=(const ByteChunk& another) = delete;
@@ -120,7 +120,7 @@ class ValidateChunk : public BaseChunk {
 
 
 [[nodiscard]] std::unique_ptr<BaseChunk> MakeNumChunk(NumSize size);
-[[nodiscard]] std::unique_ptr<BaseChunk> MakeByteChunk(NumSize len_num_size, Endianess num_endianess = Endianess::kLittleEndian);
+[[nodiscard]] std::unique_ptr<BaseChunk> MakeByteChunk(NumSize len_num_size, Endianness num_endianess = Endianness::kLittleEndian);
 [[nodiscard]] std::unique_ptr<BaseChunk> MakeValidateChunk(uint64_t size, std::vector<uint8_t>&& target_value);
 
 } // namespace wiseio

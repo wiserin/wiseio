@@ -125,8 +125,8 @@ jobs:
         mkdir -p bench_results
         cd build/perf
 
-        ./wiseio_bench > ../bench_results/structured.txt
-        ./wiseio_bench_stream > ../bench_results/stream.txt
+        ./wiseio_bench > ../../bench_results/structured.txt
+        ./wiseio_bench_stream > ../../bench_results/stream.txt
     
     - name: Benchmark summary
       if: always()

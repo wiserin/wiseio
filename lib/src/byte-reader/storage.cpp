@@ -55,5 +55,4 @@ void Storage::Commit() {
     state_ = StorageState::kCommited;
 }
 
-
-} // namespace wiseio
+}

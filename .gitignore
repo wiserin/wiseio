@@ -9,3 +9,5 @@ test_23.bin
 test.bin
 test3.bin
 cache/
+.clang-tidy
+Testing

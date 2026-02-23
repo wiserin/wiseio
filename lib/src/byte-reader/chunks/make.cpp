@@ -11,7 +11,7 @@ using str = std::string;
 
 namespace wiseio {
 
-std::unique_ptr<BaseChunk> MakeByteChunk(NumSize len_num_size, Endianess num_endianess) {
+std::unique_ptr<BaseChunk> MakeByteChunk(NumSize len_num_size, Endianness num_endianess) {
     std::unique_ptr<BaseChunk> chunk = std::make_unique<ByteChunk>(
         len_num_size, num_endianess);
     return chunk;

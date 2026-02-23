@@ -99,3 +99,56 @@ jobs:
           echo ""
           echo "- Status: **$STATUS**"
         } >> $GITHUB_STEP_SUMMARY
+
+  bench:
+    name: Benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++
+
+    - name: Configure (Release)
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cmake --build build -j4
+      
+    - name: Run benchmarks
+      run: |
+        mkdir -p bench_results
+        cd build/perf
+
+        ./wiseio_bench > ../../bench_results/structured.txt
+        ./wiseio_bench_stream > ../../bench_results/stream.txt
+    
+    - name: Benchmark summary
+      if: always()
+      run: |
+        STATUS="✅ Completed"
+        [ "${{ job.status }}" != "success" ] && STATUS="❌ Failed"
+
+        {
+          echo "## 🚀 WiseIO Benchmarks"
+          echo ""
+          echo "- Status: **$STATUS**"
+          echo ""
+
+          echo "### 📊 Stream Benchmark"
+          echo '```'
+          cat bench_results/stream.txt
+          echo '```'
+
+          echo ""
+          echo "### 📊 Structured Benchmark"
+          echo '```'
+          cat bench_results/structured.txt
+          echo '```'
+        } >> $GITHUB_STEP_SUMMARY
+

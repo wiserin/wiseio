@@ -10,4 +10,4 @@ test.bin
 test3.bin
 cache/
 .clang-tidy
-Testing/
+Testing

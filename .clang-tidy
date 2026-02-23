@@ -47,3 +47,6 @@ CheckOptions:
 
   - key: readability-namespace-comments.ShortNamespaceLines
     value: 1
+
+
+HeaderFilterRegex: 'lib/' 

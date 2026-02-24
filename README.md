@@ -12,6 +12,9 @@ A modern, high-performance C++ library for file I/O operations with smart buffer
 - 📦 **Smart Buffering**: Built-in buffer classes for optimal memory management
 - 🔄 **Flexible Reading**: Cursor-based and offset-based reading modes
 - 📝 **Text Processing**: Line-by-line reading with comment filtering support
+- 🗂️ **Structured Binary Files**: Chunk-based binary file parsing and compilation via `ByteFile`
+- 🔢 **Numeric Views**: Endianness-aware integer serialization with `NumView`
+- 💾 **Lazy Storage**: Memory-efficient data storage with optional disk caching via `Storage`
 - 🔒 **Type Safety**: Modern C++23 with strong type checking
 - 🧪 **Well Tested**: Comprehensive test suite with 90%+ coverage
 - 🎯 **Zero Dependencies**: Only requires standard library and POSIX (except for logging)
@@ -24,7 +27,13 @@ A modern, high-performance C++ library for file I/O operations with smart buffer
   - [Stream](#stream)
   - [BytesIOBuffer](#bytesiobuffer)
   - [StringIOBuffer](#stringiobuffer)
+  - [ByteFile](#bytefile)
+  - [Chunks](#chunks)
+  - [Storage](#storage)
+  - [NumView](#numview)
 - [Usage Examples](#usage-examples)
+- [Recommended Patterns](#recommended-patterns)
+  - [File Wrapper Pattern](#file-wrapper-pattern)
 - [Building](#building)
 - [Testing](#testing)
 - [Contributing](#contributing)
@@ -122,6 +131,29 @@ int main() {
 }
 ```
 
+### Reading a Structured Binary File
+
+```cpp
+#include <wise-io/byte/bytefile.hpp>
+#include <wise-io/byte/chunks.hpp>
+#include <wise-io/byte/views.hpp>
+
+int main() {
+    wiseio::ByteFile<std::string> file("data.bin");
+
+    file.AddChunk(wiseio::MakeNumChunk(wiseio::NumSize::kUint32_t), "version");
+    file.AddChunk(wiseio::MakeByteChunk(wiseio::NumSize::kUint32_t), "payload");
+
+    file.InitChunksFromFile();
+
+    wiseio::BaseChunk& version_chunk = file.GetAndLoadChunk("version");
+    wiseio::NumView view(version_chunk.GetStorage().GetData());
+    std::cout << "Version: " << view.GetNum<uint32_t>() << std::endl;
+
+    return 0;
+}
+```
+
 ## API Reference
 
 ### Stream
@@ -131,7 +163,8 @@ The `Stream` class provides low-level file operations with automatic resource ma
 #### Creating a Stream
 
 ```cpp
-Stream CreateStream(const char* path, OpenMode mode);
+Stream CreateStream(const char* path, OpenMode mode, bool is_temp = false);
+Stream CreateStream(const std::filesystem::path& path, OpenMode mode, bool is_temp = false);
 ```
 
 **Open Modes:**
@@ -139,6 +172,15 @@ Stream CreateStream(const char* path, OpenMode mode);
 - `OpenMode::kWrite` - Write mode (creates file if doesn't exist)
 - `OpenMode::kAppend` - Append mode
 - `OpenMode::kReadAndWrite` - Read and write mode
+
+**`is_temp` flag:** When `true`, the file is unlinked from the filesystem immediately after opening. The file descriptor remains valid for the lifetime of the `Stream` object, but the file will be automatically deleted when the stream is closed or destroyed. Useful for scratch files.
+
+```cpp
+// Temporary file — deleted when stream is destroyed
+auto tmp = wiseio::CreateStream("/tmp/scratch.bin", wiseio::OpenMode::kWrite, true);
+tmp.CWrite(std::string("temporary data"));
+// file is automatically removed when tmp goes out of scope
+```
 
 #### Reading Methods
 
@@ -250,8 +292,12 @@ stream.CustomWrite(patch, 100);  // Write at position 100
 
 ```cpp
 void SetCursor(size_t position);      // Set cursor position
+size_t GetCursor() const;             // Get current cursor position
 size_t GetFileSize() const;           // Get file size in bytes
 bool IsEOF() const;                   // Check if reached end of file
+bool IsOpen() const;                  // Check if the file descriptor is open
+void SetDelete() const;               // Unlink the file from the filesystem
+void Rename(std::string&& new_name);  // Rename the file (within the same directory)
 void Close();                         // Manually close file
 ```
 
@@ -260,9 +306,16 @@ void Close();                         // Manually close file
 size_t file_size = stream.GetFileSize();
 std::cout << "File size: " << file_size << " bytes" << std::endl;
 
+size_t pos = stream.GetCursor();
+std::cout << "Current position: " << pos << std::endl;
+
 stream.SetCursor(0);  // Reset to beginning
 if (stream.IsEOF()) {
     std::cout << "Reached end of file" << std::endl;
+}
+
+if (stream.IsOpen()) {
+    stream.Close();
 }
 ```
 
@@ -446,6 +499,289 @@ buffer.SetCursor(0);
 std::string line1 = buffer.GetLine();  // "data=value1"
 std::string line2 = buffer.GetLine();  // "data2=value2 "
 ```
+
+---
+
+### ByteFile
+
+`ByteFile<T>` provides a high-level abstraction for structured binary files composed of typed chunks. It manages layout, indexing, lazy loading, and atomic recompilation of binary files.
+
+The template parameter `T` must be hashable (usable as an `std::unordered_map` key). Common choices are `std::string` or a user-defined `enum class`.
+
+```cpp
+#include <wise-io/byte/bytefile.hpp>
+#include <wise-io/byte/chunks.hpp>
+```
+
+#### Creating a ByteFile
+
+```cpp
+template <Hashable T = std::string>
+class ByteFile {
+public:
+    ByteFile(const char* file_name);
+
+    void AddChunk(std::unique_ptr<BaseChunk> chunk, T&& name);
+    void AddChunk(std::unique_ptr<BaseChunk> chunk, const T& name);
+
+    BaseChunk& GetChunk(const T& name);
+    BaseChunk& GetAndLoadChunk(const T& name);
+
+    void InitChunksFromFile();
+    void Compile();
+};
+```
+
+#### Methods
+
+**`AddChunk(chunk, name)`** — Registers a chunk with a unique name. Chunks must be added in the order they appear in the file. Throws `std::logic_error` if the name is already taken.
+
+**`GetChunk(name)`** — Returns a reference to the chunk by name without loading its data. Throws `std::logic_error` if the name is not found.
+
+**`GetAndLoadChunk(name)`** — Returns a reference to the chunk and loads its data from disk into the chunk's `Storage`. Use this when you need to read the chunk's actual bytes.
+
+**`InitChunksFromFile()`** — Scans the file sequentially, recording the offset and size of each chunk without loading its data. Must be called before `GetAndLoadChunk` or `Compile`.
+
+**`Compile()`** — Rewrites the file by iterating through all chunks. Chunks whose `Storage` has been modified are serialized from memory; unchanged chunks are re-read from the original file. The original file is replaced atomically.
+
+#### Example
+
+```cpp
+wiseio::ByteFile<std::string> file("records.bin");
+
+file.AddChunk(wiseio::MakeNumChunk(wiseio::NumSize::kUint32_t), "count");
+file.AddChunk(wiseio::MakeByteChunk(wiseio::NumSize::kUint32_t), "data");
+
+file.InitChunksFromFile();
+
+// Read the count field
+wiseio::BaseChunk& count_chunk = file.GetAndLoadChunk("count");
+wiseio::NumView count_view(count_chunk.GetStorage().GetData());
+uint32_t count = count_view.GetNum<uint32_t>();
+std::cout << "Count: " << count << std::endl;
+
+// Modify the count and save
+count_view.SetNum<uint32_t>(count + 1);
+count_chunk.GetStorage().Commit();
+
+file.Compile();
+```
+
+---
+
+### Chunks
+
+Chunks are the building blocks of a `ByteFile`. Each chunk represents a contiguous region within the binary file and knows how to initialize itself (record offset/size) and load its data.
+
+#### BaseChunk Interface
+
+```cpp
+class BaseChunk {
+public:
+    virtual void Init(wiseio::Stream& stream) = 0;     // Record offset; advance stream cursor
+    virtual void Load(wiseio::Stream& stream) = 0;     // Load data into Storage
+    virtual std::vector<uint8_t> GetCompiledChunk() = 0; // Serialize to bytes
+    virtual bool IsInitialized() = 0;
+
+    virtual uint64_t GetOffset() = 0;   // Byte offset in the file
+    virtual uint64_t GetSize() = 0;     // Size in bytes
+    virtual Storage& GetStorage() = 0; // Access the chunk's data storage
+};
+```
+
+#### NumChunk
+
+Represents a fixed-size integer field (1, 2, 4, or 8 bytes).
+
+```cpp
+// Factory function
+std::unique_ptr<BaseChunk> MakeNumChunk(NumSize size);
+```
+
+`NumSize` values:
+
+| Enum | Bytes |
+|------|-------|
+| `NumSize::kUint8_t` | 1 |
+| `NumSize::kUint16_t` | 2 |
+| `NumSize::kUint32_t` | 4 |
+| `NumSize::kUint64_t` | 8 |
+
+**Example:**
+```cpp
+auto chunk = wiseio::MakeNumChunk(wiseio::NumSize::kUint32_t);
+// Represents a 4-byte integer field
+```
+
+#### ByteChunk
+
+Represents a length-prefixed variable-size byte array. The prefix is a fixed-size integer (specified by `NumSize`) that holds the length of the following data.
+
+```cpp
+// Factory function
+std::unique_ptr<BaseChunk> MakeByteChunk(
+    NumSize len_num_size,
+    Endianness num_endianess = Endianness::kLittleEndian
+);
+```
+
+File layout for a `ByteChunk` with `NumSize::kUint32_t`:
+```
+[ 4 bytes: length ] [ length bytes: data ]
+```
+
+**Example:**
+```cpp
+// Little-endian 32-bit length prefix followed by payload
+auto chunk = wiseio::MakeByteChunk(
+    wiseio::NumSize::kUint32_t,
+    wiseio::Endianness::kLittleEndian
+);
+```
+
+#### ValidateChunk
+
+Reads a fixed-size region and validates it against an expected byte sequence. Throws `std::logic_error` during `Init` if the bytes do not match. Useful for magic number / file signature checks.
+
+```cpp
+// Factory function
+std::unique_ptr<BaseChunk> MakeValidateChunk(
+    uint64_t size,
+    std::vector<uint8_t>&& target_value
+);
+```
+
+**Example:**
+```cpp
+// Verify a 4-byte magic number at the start of the file
+auto magic = wiseio::MakeValidateChunk(4, {0x89, 0x50, 0x4E, 0x47});
+
+wiseio::ByteFile<std::string> file("image.png");
+file.AddChunk(std::move(magic), "magic");
+file.InitChunksFromFile();  // throws if magic bytes don't match
+```
+
+#### Endianness
+
+```cpp
+enum class Endianness : uint8_t {
+    kLittleEndian = 0,
+    kBigEndian
+};
+```
+
+---
+
+### Storage
+
+`Storage` is a lazy data container used by chunks to hold their raw bytes. It tracks whether the data has been modified and supports optional disk caching to free heap memory for large datasets.
+
+```cpp
+#include <wise-io/byte/storage.hpp>
+```
+
+#### Methods
+
+```cpp
+class Storage {
+public:
+    std::vector<uint8_t>& GetData();   // Access (and mark dirty) the data buffer
+    bool IsChanged();                  // True if data has been modified or committed
+    void Commit();                     // Flush data to a cache file and free heap memory
+
+    static void SetCacheDir(std::string&& path);  // Set directory for cache files
+};
+```
+
+**`GetData()`** — Returns a mutable reference to the underlying `std::vector<uint8_t>`. Calling this method marks the storage as dirty (`StorageState::kDirty`), meaning it will be written out during `Compile()`. If the storage was previously committed to disk, the data is transparently reloaded before being returned.
+
+**`IsChanged()`** — Returns `true` if the storage is dirty or has been committed (i.e., differs from its initial clean state). `ByteFileEngine` uses this to decide which chunks need to be re-serialized during `Compile()`.
+
+**`Commit()`** — Writes the current data to a temporary cache file and frees the heap buffer. The data remains accessible via `GetData()`, which will reload it from the cache file transparently. Useful when working with many large chunks that would otherwise exhaust memory.
+
+**`SetCacheDir(path)`** — Sets the directory where `Commit()` stores its temporary files. Must be called before any `Commit()` call. Throws `std::runtime_error` if the path is not an existing directory.
+
+#### Example
+
+```cpp
+// Configure cache directory (call once at startup)
+wiseio::Storage::SetCacheDir("/tmp/wiseio_cache");
+
+// ... load and work with chunks ...
+
+wiseio::Storage& storage = file.GetAndLoadChunk("large_payload").GetStorage();
+
+// Modify data
+std::vector<uint8_t>& data = storage.GetData();
+data[0] = 0xFF;
+
+// Free heap memory while preserving the change
+storage.Commit();
+
+// data is still accessible — reloaded transparently from cache
+std::vector<uint8_t>& reloaded = storage.GetData();
+```
+
+---
+
+### NumView
+
+`NumView` is a typed, endianness-aware view over a `std::vector<uint8_t>`. It provides templated `GetNum<T>()` and `SetNum<T>(value)` methods for reading and writing integers of any integral type.
+
+```cpp
+#include <wise-io/byte/views.hpp>
+```
+
+#### Constructor
+
+```cpp
+NumView(std::vector<uint8_t>& data, Endianness endianess = Endianness::kLittleEndian);
+```
+
+The view holds a reference to the provided vector. The vector must remain valid for the lifetime of the view, and its size must match `sizeof(T)` at the time `GetNum` or `SetNum` is called.
+
+#### Methods
+
+```cpp
+template<typename T>
+T GetNum();  // Deserialize integer from buffer (T must be integral)
+
+template<typename T>
+void SetNum(T num);  // Serialize integer into buffer (resizes buffer to sizeof(T))
+```
+
+#### Example
+
+```cpp
+std::vector<uint8_t> raw_bytes(4);
+
+wiseio::NumView view(raw_bytes, wiseio::Endianness::kLittleEndian);
+
+// Write a value
+view.SetNum<uint32_t>(0xDEADBEEF);
+// raw_bytes is now {0xEF, 0xBE, 0xAD, 0xDE}
+
+// Read it back
+uint32_t value = view.GetNum<uint32_t>();  // 0xDEADBEEF
+
+// Works with any integral type
+view.SetNum<uint16_t>(1000);
+uint16_t small = view.GetNum<uint16_t>();  // 1000
+```
+
+#### Utility Functions
+
+`NumView` is backed by two free functions available via `<wise-io/utils.hpp>`:
+
+```cpp
+template<Integral T>
+T FromVector(const std::vector<uint8_t>& data, Endianness source_endian);
+
+template<Integral T>
+std::vector<uint8_t> ToVector(T num, Endianness target_endian);
+```
+
+These can be used directly when a full `NumView` is not needed.
 
 ---
 
@@ -636,6 +972,191 @@ void patch_file(const char* filename, size_t offset,
 }
 ```
 
+### Example 6: Structured Binary File with ByteFile
+
+```cpp
+#include <wise-io/byte/bytefile.hpp>
+#include <wise-io/byte/chunks.hpp>
+#include <wise-io/byte/views.hpp>
+
+// File layout:
+//   [4 bytes] magic: 0xDEADBEEF
+//   [4 bytes] version: uint32_t
+//   [4 + N bytes] payload: uint32_t length prefix + N bytes data
+
+void write_structured(const char* path) {
+    auto stream = wiseio::CreateStream(path, wiseio::OpenMode::kWrite);
+
+    // Write magic
+    std::vector<uint8_t> magic = {0xEF, 0xBE, 0xAD, 0xDE};
+    stream.CWrite(magic);
+
+    // Write version = 1
+    wiseio::NumView version_view(magic);  // reuse buffer
+    version_view.SetNum<uint32_t>(1);
+    stream.CWrite(magic);
+
+    // Write payload with length prefix
+    std::vector<uint8_t> payload = {'H', 'e', 'l', 'l', 'o'};
+    uint32_t len = payload.size();
+    std::vector<uint8_t> len_buf = wiseio::ToVector<uint32_t>(len, wiseio::Endianness::kLittleEndian);
+    stream.CWrite(len_buf);
+    stream.CWrite(payload);
+}
+
+void read_structured(const char* path) {
+    wiseio::ByteFile<std::string> file(path);
+
+    file.AddChunk(wiseio::MakeValidateChunk(4, {0xEF, 0xBE, 0xAD, 0xDE}), "magic");
+    file.AddChunk(wiseio::MakeNumChunk(wiseio::NumSize::kUint32_t), "version");
+    file.AddChunk(wiseio::MakeByteChunk(wiseio::NumSize::kUint32_t), "payload");
+
+    file.InitChunksFromFile();  // throws if magic doesn't match
+
+    wiseio::BaseChunk& ver = file.GetAndLoadChunk("version");
+    wiseio::NumView view(ver.GetStorage().GetData());
+    std::cout << "Version: " << view.GetNum<uint32_t>() << std::endl;
+
+    wiseio::BaseChunk& pay = file.GetAndLoadChunk("payload");
+    std::vector<uint8_t>& data = pay.GetStorage().GetData();
+    std::cout << "Payload: " << std::string(data.begin(), data.end()) << std::endl;
+}
+```
+
+### Example 7: Modifying a Structured File
+
+```cpp
+#include <wise-io/byte/bytefile.hpp>
+#include <wise-io/byte/chunks.hpp>
+#include <wise-io/byte/views.hpp>
+
+void increment_version(const char* path) {
+    wiseio::ByteFile<std::string> file(path);
+
+    file.AddChunk(wiseio::MakeNumChunk(wiseio::NumSize::kUint32_t), "version");
+    file.AddChunk(wiseio::MakeByteChunk(wiseio::NumSize::kUint32_t), "data");
+
+    file.InitChunksFromFile();
+
+    // Load and modify the version field
+    wiseio::BaseChunk& ver = file.GetAndLoadChunk("version");
+    wiseio::Storage& storage = ver.GetStorage();
+    wiseio::NumView view(storage.GetData());
+
+    uint32_t current = view.GetNum<uint32_t>();
+    view.SetNum<uint32_t>(current + 1);
+
+    // Mark the storage as committed so Compile() picks it up
+    storage.Commit();
+
+    // Atomically rewrite the file
+    file.Compile();
+}
+```
+
+---
+
+## Recommended Patterns
+
+### File Wrapper Pattern
+
+For production code, the recommended way to use `ByteFile` is to wrap it in a domain-specific class. This approach provides several benefits: the file layout is defined in one place, chunk names are type-safe enum values instead of strings, and the public interface exposes only meaningful operations rather than raw chunk access.
+
+The pattern uses an `enum class` as the `ByteFile` key type, which is hashable by default and allows the compiler to catch typos at compile time.
+
+```cpp
+#include <wise-io/byte/bytefile.hpp>
+#include <wise-io/byte/chunks.hpp>
+#include <wise-io/byte/views.hpp>
+#include <wise-io/byte/storage.hpp>
+
+class MyFile {
+    enum class Modules {
+        kFirst = 0,
+        kSecond,
+        kThird
+    };
+
+    wiseio::ByteFile<Modules> file_;
+
+public:
+    explicit MyFile(const char* name)
+        : file_(wiseio::ByteFile<Modules>(name))
+    {
+        // Define the file layout: order of AddChunk calls must match the on-disk layout
+        file_.AddChunk(
+            wiseio::MakeNumChunk(wiseio::NumSize::kUint32_t),
+            Modules::kFirst);
+        file_.AddChunk(
+            wiseio::MakeNumChunk(wiseio::NumSize::kUint32_t),
+            Modules::kSecond);
+        file_.AddChunk(
+            wiseio::MakeByteChunk(wiseio::NumSize::kUint32_t),
+            Modules::kThird);
+    }
+
+    // Scan the file and record offsets (must be called before any Load or Compile)
+    void InitFromFile() {
+        file_.InitChunksFromFile();
+    }
+
+    // Atomically rewrite the file with any pending changes
+    void Compile() {
+        file_.Compile();
+    }
+
+    // Load the first numeric field and return its storage
+    wiseio::Storage& LoadFirstChunk() {
+        return file_.GetAndLoadChunk(Modules::kFirst).GetStorage();
+    }
+
+    // Load the second numeric field and return its storage
+    wiseio::Storage& LoadSecondChunk() {
+        return file_.GetAndLoadChunk(Modules::kSecond).GetStorage();
+    }
+
+    // Access the variable-length payload storage without loading it
+    // (useful for writing new data before Compile)
+    wiseio::Storage& GetPayloadStorage() {
+        return file_.GetChunk(Modules::kThird).GetStorage();
+    }
+};
+```
+
+#### Full Usage Example
+
+```cpp
+#include "my_file.hpp"  // the wrapper above
+
+int main() {
+    MyFile file("test3.bin");
+    file.InitFromFile();
+
+    // Read the first uint32_t field
+    wiseio::Storage& st = file.LoadFirstChunk();
+    std::vector<uint8_t>& buff = st.GetData();
+    wiseio::NumView view(buff);
+
+    uint32_t value = view.GetNum<uint32_t>();
+    std::cout << "First field: " << value << std::endl;
+
+    // Modify it
+    view.SetNum<uint32_t>(250);
+
+    // Commit frees heap memory while preserving the change for Compile()
+    st.Commit();
+
+    // Rewrite the file with the updated value
+    file.Compile();
+
+    return 0;
+}
+```
+
+#### Why This Pattern Works Well
+
+Using an `enum class` as the key type instead of `std::string` means the compiler rejects invalid chunk names at compile time. The wrapper class hides the `ByteFile` layout details and exposes a stable API — if the file format changes, only the wrapper needs updating. The `Commit()` call after modification is important: it signals to `ByteFile::Compile()` that this chunk's data has changed and needs to be re-serialized, while also freeing the heap buffer to keep memory usage predictable.
+
 ---
 
 ## Building
@@ -772,6 +1293,22 @@ firefox build/coverage_html/index.html
    }
    ```
 
+5. **Use `Storage::Commit()` for large chunk data**: When a `ByteFile` has many large chunks loaded simultaneously, call `Commit()` on chunks you are done modifying to free heap memory. The data will be reloaded transparently if accessed again.
+   ```cpp
+   wiseio::Storage::SetCacheDir("/tmp/wiseio_cache");
+   
+   // Load, modify, then commit to free memory
+   wiseio::Storage& st = file.GetAndLoadChunk("large_data").GetStorage();
+   // ... modify st.GetData() ...
+   st.Commit();  // data flushed to cache; heap buffer freed
+   ```
+
+6. **Use `GetChunk` instead of `GetAndLoadChunk` when you only want to write**: If you intend to overwrite a chunk's contents entirely (not read the existing value), use `GetChunk` to avoid an unnecessary disk read.
+   ```cpp
+   wiseio::Storage& st = file.GetChunk("output_field").GetStorage();
+   st.GetData() = new_bytes;  // write without loading old value
+   ```
+
 ---
 
 ## Error Handling
@@ -782,6 +1319,9 @@ All methods that can fail return appropriate error indicators:
 - **Writing methods**: Return `false` on error, `true` on success
 - **Constructor**: Throws `std::runtime_error` if file cannot be opened
 - **Buffer methods**: Throw `std::out_of_range` for invalid positions
+- **Chunk Init**: `ValidateChunk` throws `std::logic_error` if bytes don't match expected value
+- **ByteFile**: `AddChunk`, `GetChunk`, `GetAndLoadChunk` throw `std::logic_error` for duplicate or missing names
+- **Storage**: `SetCacheDir` throws `std::runtime_error` for invalid directory; `Commit` throws if the cache stream cannot be created
 
 ### Example Error Handling
 
@@ -806,6 +1346,9 @@ try {
     return 1;
 } catch (const std::out_of_range& e) {
     std::cerr << "Buffer error: " << e.what() << std::endl;
+    return 1;
+} catch (const std::logic_error& e) {
+    std::cerr << "Structured file error: " << e.what() << std::endl;
     return 1;
 }
 ```

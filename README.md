@@ -61,7 +61,7 @@ target_link_libraries(your_target PRIVATE WiseIO)
 
 ```bash
 git clone https://github.com/wiserin/wiseio.git
-cd file-io
+cd wiseio
 mkdir build && cd build
 cmake ..
 cmake --build .
@@ -540,7 +540,7 @@ public:
 
 **`GetAndLoadChunk(name)`** — Returns a reference to the chunk and loads its data from disk into the chunk's `Storage`. Use this when you need to read the chunk's actual bytes.
 
-**`InitChunksFromFile()`** — Scans the file sequentially, recording the offset and size of each chunk without loading its data. Must be called before `GetAndLoadChunk` or `Compile`.
+**`InitChunksFromFile()`** — Scans the file sequentially, recording the offset and size of each chunk without loading its data. Must be called before `GetAndLoadChunk`.
 
 **`Compile()`** — Rewrites the file by iterating through all chunks. Chunks whose `Storage` has been modified are serialized from memory; unchanged chunks are re-read from the original file. The original file is replaced atomically.
 
@@ -699,7 +699,7 @@ public:
 
 **`Commit()`** — Writes the current data to a temporary cache file and frees the heap buffer. The data remains accessible via `GetData()`, which will reload it from the cache file transparently. Useful when working with many large chunks that would otherwise exhaust memory.
 
-**`SetCacheDir(path)`** — Sets the directory where `Commit()` stores its temporary files. Must be called before any `Commit()` call. Throws `std::runtime_error` if the path is not an existing directory.
+**`SetCacheDir(path)`** — Sets the directory where `Commit()` stores its temporary files. Throws `std::runtime_error` if the path is not an existing directory.
 
 #### Example
 
@@ -1095,7 +1095,7 @@ public:
             Modules::kThird);
     }
 
-    // Scan the file and record offsets (must be called before any Load or Compile)
+    // Scan the file and record offsets (must be called before any GetAndLoadChunk)
     void InitFromFile() {
         file_.InitChunksFromFile();
     }
@@ -1155,7 +1155,7 @@ int main() {
 
 #### Why This Pattern Works Well
 
-Using an `enum class` as the key type instead of `std::string` means the compiler rejects invalid chunk names at compile time. The wrapper class hides the `ByteFile` layout details and exposes a stable API — if the file format changes, only the wrapper needs updating. The `Commit()` call after modification is important: it signals to `ByteFile::Compile()` that this chunk's data has changed and needs to be re-serialized, while also freeing the heap buffer to keep memory usage predictable.
+Using an `enum class` as the key type instead of `std::string` means the compiler rejects invalid chunk names at compile time. The wrapper class hides the `ByteFile` layout details and exposes a stable API — if the file format changes, only the wrapper needs updating. The `Commit()` call after modification freeing the heap buffer to keep memory usage predictable.
 
 ---
 
@@ -1171,7 +1171,7 @@ Using an `enum class` as the key type instead of `std::string` means the compile
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/file-io.git
+git clone https://github.com/wiserin/wiseio.git
 cd WiseIO
 
 # Create build directory

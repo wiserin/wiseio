@@ -16,7 +16,7 @@ namespace wiseio {
 
 class IOBuffer;
 
-class Stream {
+class Stream {  // TODO добавить перегрузку << 
     int fd_ = -1;
     bool is_eof_ = false;
     OpenMode mode_ = OpenMode::kDefault;

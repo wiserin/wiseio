@@ -21,7 +21,7 @@ class Storage {
 
     void ReadFromCache();
 
- public:
+ public:  // TODO добавить метод rollback
     Storage() = default;
     Storage(const Storage& another) = delete;
     Storage& operator=(const Storage& another) = delete;
